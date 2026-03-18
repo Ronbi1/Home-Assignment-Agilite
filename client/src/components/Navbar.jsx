@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { LayoutDashboard, PlusCircle, Package, Headphones, Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import ThemeToggle from './ThemeToggle.jsx';
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -30,8 +31,9 @@ function SidebarContent() {
         ))}
       </nav>
 
-      <div className="p-4 border-t border-slate-700/60">
+      <div className="p-4 border-t border-slate-700/60 flex items-center justify-between">
         <p className="text-slate-600 text-xs">v1.0.0</p>
+        <ThemeToggle className="text-slate-400 hover:text-white hover:bg-slate-800" />
       </div>
     </>
   );
@@ -55,13 +57,16 @@ export default function Navbar() {
           </div>
           <span className="font-semibold text-base text-white tracking-tight">SupportDesk</span>
         </div>
-        <button
-          onClick={() => setMobileOpen((prev) => !prev)}
-          className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-          aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
-        >
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        <div className="flex items-center gap-1">
+          <ThemeToggle className="text-slate-400 hover:text-white hover:bg-slate-800" />
+          <button
+            onClick={() => setMobileOpen((prev) => !prev)}
+            className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+          >
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </header>
 
       {/* Mobile slide-out drawer */}

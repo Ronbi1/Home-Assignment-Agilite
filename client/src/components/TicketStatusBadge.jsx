@@ -1,10 +1,10 @@
 const STATUS_CONFIG = {
   open: {
-    badge: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    badge: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
     dot: 'bg-emerald-500',
   },
   closed: {
-    badge: 'bg-slate-100 text-slate-500 border-slate-200',
+    badge: 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-600',
     dot: 'bg-slate-400',
   },
 };

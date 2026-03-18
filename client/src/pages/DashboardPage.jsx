@@ -15,9 +15,9 @@ export default function DashboardPage() {
       <div className="mb-7">
         <div className="flex items-center gap-3 mb-1">
           <LayoutDashboard size={22} className="text-indigo-600" />
-          <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Dashboard</h1>
         </div>
-        <p className="text-slate-500 text-sm">Manage and track all customer support tickets</p>
+        <p className="text-slate-500 dark:text-slate-400 text-sm">Manage and track all customer support tickets</p>
       </div>
 
       <AnalyticsStrip />

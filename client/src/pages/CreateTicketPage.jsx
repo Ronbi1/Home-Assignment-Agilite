@@ -9,7 +9,7 @@ import ProductSelectorModal from '../components/ProductSelectorModal.jsx';
 
 const InputField = ({ label, error, required, children }) => (
   <div>
-    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
       {label} {required && <span className="text-red-400">*</span>}
     </label>
     {children}
@@ -18,8 +18,8 @@ const InputField = ({ label, error, required, children }) => (
 );
 
 const inputClass = (hasError) =>
-  `w-full px-3.5 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors ${
-    hasError ? 'border-red-300 bg-red-50/40' : 'border-slate-200 hover:border-slate-300'
+  `w-full px-3.5 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 ${
+    hasError ? 'border-red-300 bg-red-50/40' : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500'
   }`;
 
 export default function CreateTicketPage() {
@@ -67,11 +67,11 @@ export default function CreateTicketPage() {
     return (
       <div className="p-8 flex items-center justify-center min-h-full">
         <div className="text-center">
-          <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/40 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle size={32} className="text-emerald-600" />
           </div>
-          <h2 className="text-xl font-bold text-slate-800 mb-1">Ticket Submitted!</h2>
-          <p className="text-slate-500 text-sm">Redirecting to dashboard...</p>
+          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">Ticket Submitted!</h2>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">Redirecting to dashboard...</p>
         </div>
       </div>
     );
@@ -82,14 +82,14 @@ export default function CreateTicketPage() {
       <div className="mb-7">
         <div className="flex items-center gap-3 mb-1">
           <PlusCircle size={22} className="text-indigo-600" />
-          <h1 className="text-2xl font-bold text-slate-800">New Support Ticket</h1>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">New Support Ticket</h1>
         </div>
-        <p className="text-slate-500 text-sm">Fill in the details below to submit a support request</p>
+        <p className="text-slate-500 dark:text-slate-400 text-sm">Fill in the details below to submit a support request</p>
       </div>
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 space-y-5 max-w-2xl"
+        className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 space-y-5 max-w-2xl"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <InputField label="Full Name" error={errors.customer_name} required>
@@ -122,14 +122,14 @@ export default function CreateTicketPage() {
           <button
             type="button"
             onClick={() => setShowModal(true)}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 border rounded-xl text-sm text-left transition-colors hover:bg-slate-50 ${
-              errors.product_id ? 'border-red-300 bg-red-50/40' : 'border-slate-200 hover:border-slate-300'
+            className={`w-full flex items-center gap-3 px-3.5 py-2.5 border rounded-xl text-sm text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${
+              errors.product_id ? 'border-red-300 bg-red-50/40' : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500'
             }`}
           >
             <Package size={16} className={selectedProduct ? 'text-indigo-600' : 'text-slate-400'} />
             {selectedProduct ? (
               <>
-                <span className="flex-1 truncate text-slate-800">{selectedProduct.title}</span>
+                <span className="flex-1 truncate text-slate-800 dark:text-slate-100">{selectedProduct.title}</span>
                 <span className="text-xs text-indigo-600 font-medium flex-shrink-0">Change</span>
               </>
             ) : (
@@ -149,7 +149,7 @@ export default function CreateTicketPage() {
         </InputField>
 
         {submitError && (
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+          <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm">
             {submitError}
           </div>
         )}

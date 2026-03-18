@@ -17,15 +17,15 @@ export default function ReplyForm({ onSubmit, isLoading }) {
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="p-4 border-t border-slate-200">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="p-4 border-t border-slate-200 dark:border-slate-700">
       <div className="flex gap-3 items-end">
         <div className="flex-1">
           <textarea
             {...register('content')}
             placeholder="Write a reply..."
             rows={3}
-            className={`w-full px-3.5 py-2.5 border rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors ${
-              errors.content ? 'border-red-300' : 'border-slate-200'
+            className={`w-full px-3.5 py-2.5 border rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 ${
+              errors.content ? 'border-red-300' : 'border-slate-200 dark:border-slate-600'
             }`}
           />
           {errors.content && (

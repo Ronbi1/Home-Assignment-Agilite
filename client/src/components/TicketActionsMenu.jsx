@@ -41,17 +41,17 @@ export default function TicketActionsMenu({ ticket }) {
     >
       <button
         onClick={() => setOpen((prev) => !prev)}
-        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+        className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
         aria-label="Ticket actions"
       >
         <MoreVertical size={15} />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-8 z-10 bg-white border border-slate-200 rounded-xl shadow-lg py-1 min-w-[130px]">
+        <div className="absolute right-0 top-8 z-10 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg py-1 min-w-[130px]">
           <button
             onClick={handleCopy}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
           >
             {copied ? (
               <Check size={14} className="text-emerald-500 flex-shrink-0" />

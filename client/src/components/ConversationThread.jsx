@@ -16,7 +16,7 @@ function ReplyBubble({ reply }) {
   return (
     <div className={`flex flex-col gap-1 ${isAgent ? 'items-end' : 'items-start'}`}>
       <div className="flex items-center gap-2 text-xs text-slate-400">
-        <span className="font-medium text-slate-500">{reply.author}</span>
+        <span className="font-medium text-slate-500 dark:text-slate-400">{reply.author}</span>
         <span>·</span>
         <span>{formatTime(reply.created_at)}</span>
       </div>
@@ -24,7 +24,7 @@ function ReplyBubble({ reply }) {
         className={`px-4 py-3 rounded-2xl max-w-sm text-sm leading-relaxed ${
           isAgent
             ? 'bg-indigo-600 text-white rounded-tr-sm'
-            : 'bg-slate-100 text-slate-800 rounded-tl-sm'
+            : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-tl-sm'
         }`}
       >
         {reply.content}
@@ -35,8 +35,8 @@ function ReplyBubble({ reply }) {
 
 const SkeletonBubble = ({ align }) => (
   <div className={`flex flex-col gap-1 ${align === 'right' ? 'items-end' : 'items-start'}`}>
-    <div className="h-3 w-28 bg-slate-200 rounded animate-pulse" />
-    <div className="h-14 w-56 bg-slate-200 rounded-2xl animate-pulse" />
+    <div className="h-3 w-28 bg-slate-200 dark:bg-slate-600 rounded animate-pulse" />
+    <div className="h-14 w-56 bg-slate-200 dark:bg-slate-600 rounded-2xl animate-pulse" />
   </div>
 );
 

@@ -1,13 +1,13 @@
 import ProductCard from './ProductCard.jsx';
 
 const SkeletonCard = () => (
-  <div className="bg-white rounded-xl overflow-hidden border border-slate-200">
-    <div className="aspect-square bg-slate-200 animate-pulse" />
+  <div className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+    <div className="aspect-square bg-slate-200 dark:bg-slate-700 animate-pulse" />
     <div className="p-4 space-y-2">
-      <div className="h-4 bg-slate-200 rounded animate-pulse w-1/3" />
-      <div className="h-4 bg-slate-200 rounded animate-pulse w-full" />
-      <div className="h-4 bg-slate-200 rounded animate-pulse w-2/3" />
-      <div className="h-5 bg-slate-200 rounded animate-pulse w-1/4" />
+      <div className="h-4 bg-slate-200 dark:bg-slate-600 rounded animate-pulse w-1/3" />
+      <div className="h-4 bg-slate-200 dark:bg-slate-600 rounded animate-pulse w-full" />
+      <div className="h-4 bg-slate-200 dark:bg-slate-600 rounded animate-pulse w-2/3" />
+      <div className="h-5 bg-slate-200 dark:bg-slate-600 rounded animate-pulse w-1/4" />
     </div>
   </div>
 );
