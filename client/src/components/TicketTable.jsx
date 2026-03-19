@@ -24,9 +24,9 @@ function ProductName({ productId }) {
   );
 }
 
-const SkeletonRow = () => (
+const SkeletonRow = ({ columns }) => (
   <TableRow>
-    {Array.from({ length: 7 }).map((_, i) => (
+    {Array.from({ length: columns }).map((_, i) => (
       <TableCell key={i}>
         <div className="h-4 animate-pulse rounded bg-muted" />
       </TableCell>
@@ -41,14 +41,23 @@ const formatDate = (dateStr) =>
     year: 'numeric',
   });
 
-export default function TicketTable({ tickets, isLoading }) {
+export default function TicketTable({
+  tickets,
+  isLoading,
+  selectable = false,
+  selectedTicketIds = [],
+  onToggleTicket,
+}) {
   const navigate = useNavigate();
+  const selectedIdsSet = new Set(selectedTicketIds);
+  const columnCount = selectable ? 8 : 7;
 
   return (
     <Card className="overflow-hidden border-border/80 bg-card/95">
       <Table className="min-w-[700px]">
         <TableHeader>
           <TableRow className="bg-muted/40 hover:bg-muted/40">
+            {selectable ? <TableHead className="w-10" /> : null}
             <TableHead className="text-xs font-semibold uppercase tracking-wider">Ticket ID</TableHead>
             <TableHead className="text-xs font-semibold uppercase tracking-wider">Customer</TableHead>
             <TableHead className="text-xs font-semibold uppercase tracking-wider">Subject</TableHead>
@@ -60,10 +69,10 @@ export default function TicketTable({ tickets, isLoading }) {
         </TableHeader>
         <TableBody>
           {isLoading ? (
-            Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
+            Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} columns={columnCount} />)
           ) : tickets.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="py-14 text-center text-sm text-muted-foreground">
+              <TableCell colSpan={columnCount} className="py-14 text-center text-sm text-muted-foreground">
                 No tickets found
               </TableCell>
             </TableRow>
@@ -74,6 +83,22 @@ export default function TicketTable({ tickets, isLoading }) {
                 onClick={() => navigate(`/tickets/${ticket.id}`)}
                 className="group cursor-pointer hover:bg-muted/40"
               >
+                {selectable ? (
+                  <TableCell
+                    onClick={(event) => {
+                      event.stopPropagation();
+                    }}
+                    className="w-10"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedIdsSet.has(ticket.id)}
+                      onChange={() => onToggleTicket?.(ticket.id)}
+                      aria-label={`Select ticket ${ticket.id}`}
+                      className="h-4 w-4 cursor-pointer rounded border-border"
+                    />
+                  </TableCell>
+                ) : null}
                 <TableCell className="font-mono text-xs font-semibold text-primary">
                   {ticket.id}
                 </TableCell>
