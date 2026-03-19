@@ -1,5 +1,6 @@
 import pg from 'pg';
 import dotenv from 'dotenv';
+import { normalizeProduct } from '../src/features/products/product.utils.js';
 
 dotenv.config();
 
@@ -10,13 +11,16 @@ const pool = new Pool({
   ...(isRemote && { ssl: { rejectUnauthorized: false } }),
 });
 
-const PRODUCTS_API = 'https://api.escuelajs.co/api/v1/products?limit=6';
+const PRODUCTS_API = 'https://api.escuelajs.co/api/v1/products?limit=200';
 
 async function fetchProductIds() {
   const res = await fetch(PRODUCTS_API);
   if (!res.ok) throw new Error(`Products API returned ${res.status}`);
   const products = await res.json();
-  return products.map((p) => p.id).filter((id) => Number.isInteger(id) && id > 0);
+  return products
+    .map(normalizeProduct)
+    .filter(Boolean)
+    .map((product) => product.id);
 }
 
 function buildTickets(productIds) {

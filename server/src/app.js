@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import ticketRoutes from './features/tickets/ticket.routes.js';
 import aiRoutes from './features/ai/ai.routes.js';
+import productRoutes from './features/products/product.routes.js';
 import errorHandler from './middleware/errorHandler.js';
 
 dotenv.config();
@@ -29,6 +30,7 @@ app.get('/api/health', async (req, res) => {
 
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/products', productRoutes);
 
 app.use(errorHandler);
 
