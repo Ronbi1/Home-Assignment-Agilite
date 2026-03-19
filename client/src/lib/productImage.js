@@ -1,6 +1,7 @@
 const FALLBACK = 'https://placehold.co/300x300?text=No+Image';
 
 const DEAD_HOSTS = ['placeimg.com'];
+const BLOCKED_PATH_PREFIXES = ['/api/v1/files/'];
 
 /**
  * Normalizes a product's images field to a clean, usable URL.
@@ -16,8 +17,21 @@ export const getProductImage = (images) => {
   const candidates = Array.isArray(images) ? images : [images];
   for (const raw of candidates) {
     const cleaned = raw?.replace(/[\[\]"\\]/g, '').trim();
-    if (cleaned?.startsWith('http') && !DEAD_HOSTS.some((h) => cleaned.includes(h))) {
+    if (!cleaned?.startsWith('http')) continue;
+
+    try {
+      const parsed = new URL(cleaned);
+      if (DEAD_HOSTS.includes(parsed.hostname)) continue;
+
+      const isEscuelaFileHost =
+        parsed.hostname === 'api.escuelajs.co' &&
+        BLOCKED_PATH_PREFIXES.some((prefix) => parsed.pathname.startsWith(prefix));
+      if (isEscuelaFileHost) continue;
+
       return cleaned;
+    } catch {
+      // Skip malformed values returned by external API.
+      continue;
     }
   }
   return FALLBACK;

@@ -26,7 +26,7 @@ function ProductInfo({ productId }) {
     );
   }
 
-  if (isError || !product) {
+  if (isError || !product || !product.title) {
     return (
       <div className="flex items-center gap-2 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl text-slate-400">
         <PackageX size={18} className="flex-shrink-0" />

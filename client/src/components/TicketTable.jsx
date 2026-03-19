@@ -4,13 +4,20 @@ import TicketActionsMenu from './TicketActionsMenu.jsx';
 import { useProduct } from '../hooks/useProducts.js';
 
 function ProductName({ productId }) {
-  const { data, isLoading } = useProduct(productId);
+  const { data, isLoading, isError } = useProduct(productId);
   if (isLoading) {
     return <span className="inline-block w-24 h-3.5 bg-slate-200 dark:bg-slate-600 rounded animate-pulse" />;
   }
+  if (isError || !data) {
+    return (
+      <span className="truncate max-w-[160px] block text-slate-400 dark:text-slate-500">
+        Product unavailable
+      </span>
+    );
+  }
   return (
     <span className="truncate max-w-[160px] block text-slate-600 dark:text-slate-400">
-      {data?.title || `Product #${productId}`}
+      {data.title || `Product #${productId}`}
     </span>
   );
 }

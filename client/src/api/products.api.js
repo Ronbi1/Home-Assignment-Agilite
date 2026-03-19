@@ -8,6 +8,17 @@ export const fetchProducts = async (limit = 20) => {
 };
 
 export const fetchProductById = async (id) => {
-  const { data } = await axios.get(`${PRODUCTS_BASE}/${id}`);
-  return data;
+  try {
+    const { data } = await axios.get(`${PRODUCTS_BASE}/${id}`);
+    return data;
+  } catch (error) {
+    // External catalog IDs can go stale; treat expected client errors as soft-miss.
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+      if (status && status >= 400 && status < 500) {
+        return null;
+      }
+    }
+    throw error;
+  }
 };
