@@ -16,7 +16,16 @@ const allowedOrigins = process.env.CLIENT_URL
 app.use(cors(allowedOrigins ? { origin: allowedOrigins } : {}));
 app.use(express.json());
 
-// All ticket + reply routes are handled by the tickets feature
+app.get('/api/health', async (req, res) => {
+  try {
+    const { default: pool } = await import('./config/db.js');
+    await pool.query('SELECT 1');
+    res.json({ status: 'ok', db: 'connected' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', db: err.message });
+  }
+});
+
 app.use('/api/tickets', ticketRoutes);
 
 app.use(errorHandler);

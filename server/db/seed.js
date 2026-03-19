@@ -4,7 +4,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const { Pool } = pg;
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const isRemote = process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('localhost');
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ...(isRemote && { ssl: { rejectUnauthorized: false } }),
+});
 
 const PRODUCTS_API = 'https://api.escuelajs.co/api/v1/products?limit=6';
 

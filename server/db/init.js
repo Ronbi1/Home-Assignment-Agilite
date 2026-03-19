@@ -8,7 +8,11 @@ dotenv.config();
 
 const { Pool } = pg;
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const isRemote = process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('localhost');
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ...(isRemote && { ssl: { rejectUnauthorized: false } }),
+});
 
 const sql = readFileSync(join(__dirname, 'init.sql'), 'utf8');
 
