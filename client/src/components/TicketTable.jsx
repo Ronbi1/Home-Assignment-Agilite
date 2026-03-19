@@ -2,6 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import TicketStatusBadge from './TicketStatusBadge.jsx';
 import TicketActionsMenu from './TicketActionsMenu.jsx';
 import { useProduct } from '../hooks/useProducts.js';
+import { Card } from './ui/card.jsx';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table.jsx';
 
 function ProductName({ productId }) {
   const { data, isLoading, isError } = useProduct(productId);
@@ -23,13 +25,13 @@ function ProductName({ productId }) {
 }
 
 const SkeletonRow = () => (
-  <tr>
+  <TableRow>
     {Array.from({ length: 7 }).map((_, i) => (
-      <td key={i} className="px-4 py-3.5">
-        <div className="h-4 bg-slate-100 dark:bg-slate-700 rounded animate-pulse" />
-      </td>
+      <TableCell key={i}>
+        <div className="h-4 animate-pulse rounded bg-muted" />
+      </TableCell>
     ))}
-  </tr>
+  </TableRow>
 );
 
 const formatDate = (dateStr) =>
@@ -43,73 +45,59 @@ export default function TicketTable({ tickets, isLoading }) {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto">
-      <table className="w-full text-sm min-w-[700px]">
-        <thead>
-          <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
-            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Ticket ID
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Customer
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Subject
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Product
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Status
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Date
-            </th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider w-12">
-
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+    <Card className="overflow-hidden border-border/80 bg-card/95">
+      <Table className="min-w-[700px]">
+        <TableHeader>
+          <TableRow className="bg-muted/40 hover:bg-muted/40">
+            <TableHead className="text-xs font-semibold uppercase tracking-wider">Ticket ID</TableHead>
+            <TableHead className="text-xs font-semibold uppercase tracking-wider">Customer</TableHead>
+            <TableHead className="text-xs font-semibold uppercase tracking-wider">Subject</TableHead>
+            <TableHead className="text-xs font-semibold uppercase tracking-wider">Product</TableHead>
+            <TableHead className="text-xs font-semibold uppercase tracking-wider">Status</TableHead>
+            <TableHead className="text-xs font-semibold uppercase tracking-wider">Date</TableHead>
+            <TableHead className="w-12 text-right text-xs font-semibold uppercase tracking-wider" />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {isLoading ? (
             Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
           ) : tickets.length === 0 ? (
-            <tr>
-              <td colSpan={7} className="px-4 py-14 text-center text-slate-400 text-sm">
+            <TableRow>
+              <TableCell colSpan={7} className="py-14 text-center text-sm text-muted-foreground">
                 No tickets found
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ) : (
             tickets.map((ticket) => (
-              <tr
+              <TableRow
                 key={ticket.id}
                 onClick={() => navigate(`/tickets/${ticket.id}`)}
-                className="hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors group"
+                className="group cursor-pointer hover:bg-muted/40"
               >
-                <td className="px-4 py-3.5 font-mono text-xs font-semibold text-indigo-600">
+                <TableCell className="font-mono text-xs font-semibold text-primary">
                   {ticket.id}
-                </td>
-                <td className="px-4 py-3.5 font-medium text-slate-700 dark:text-slate-200">{ticket.customer_name}</td>
-                <td className="px-4 py-3.5 text-slate-600 dark:text-slate-300 max-w-[200px]">
+                </TableCell>
+                <TableCell className="font-medium text-foreground">{ticket.customer_name}</TableCell>
+                <TableCell className="max-w-[200px] text-muted-foreground">
                   <span className="truncate block">{ticket.subject}</span>
-                </td>
-                <td className="px-4 py-3.5">
+                </TableCell>
+                <TableCell>
                   <ProductName productId={ticket.product_id} />
-                </td>
-                <td className="px-4 py-3.5">
+                </TableCell>
+                <TableCell>
                   <TicketStatusBadge status={ticket.status} />
-                </td>
-                <td className="px-4 py-3.5 text-slate-400 text-xs whitespace-nowrap">
+                </TableCell>
+                <TableCell className="text-xs whitespace-nowrap text-muted-foreground">
                   {formatDate(ticket.created_at)}
-                </td>
-                <td className="px-4 py-3.5 text-right">
+                </TableCell>
+                <TableCell className="text-right">
                   <TicketActionsMenu ticket={ticket} />
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))
           )}
-        </tbody>
-      </table>
-    </div>
+        </TableBody>
+      </Table>
+    </Card>
   );
 }

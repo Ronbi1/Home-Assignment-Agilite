@@ -3,6 +3,7 @@ import { Package } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts.js';
 import ProductGrid from '../components/ProductGrid.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
+import { Badge } from '../components/ui/badge.jsx';
 
 const CATEGORY_ORDER = ['Clothes', 'Electronics', 'Furniture', 'Shoes', 'Miscellaneous'];
 
@@ -29,10 +30,10 @@ export default function ProductsPage() {
     <div className="p-4 sm:p-8">
       <div className="mb-7">
         <div className="flex items-center gap-3 mb-1">
-          <Package size={22} className="text-indigo-600" />
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Products Catalog</h1>
+          <Package size={22} className="text-primary" />
+          <h1 className="text-2xl font-bold text-foreground">Products Catalog</h1>
         </div>
-        <p className="text-slate-500 dark:text-slate-400 text-sm">Browse all available products from our store</p>
+        <p className="text-sm text-muted-foreground">Browse all available products from our store</p>
       </div>
 
       {error ? (
@@ -41,16 +42,16 @@ export default function ProductsPage() {
         <ProductGrid products={[]} isLoading />
       ) : (
         <>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">
+          <p className="mb-5 text-sm text-muted-foreground">
             {products.length} products available
           </p>
           {grouped.map(([category, items]) => (
             <section key={category} className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-200">{category}</h2>
-                <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+              <div className="mb-4 flex items-center gap-3">
+                <h2 className="text-lg font-semibold text-foreground">{category}</h2>
+                <Badge variant="secondary" className="font-medium">
                   {items.length} {items.length === 1 ? 'product' : 'products'}
-                </span>
+                </Badge>
               </div>
               <ProductGrid products={items} />
             </section>

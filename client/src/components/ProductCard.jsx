@@ -1,11 +1,13 @@
 import { getProductImage } from '../lib/productImage.js';
+import { Badge } from './ui/badge.jsx';
+import { Card, CardContent } from './ui/card.jsx';
 
 const FALLBACK_IMAGE = 'https://placehold.co/300x300?text=No+Image';
 
 export default function ProductCard({ product }) {
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
-      <div className="aspect-square overflow-hidden bg-slate-100 dark:bg-slate-700">
+    <Card className="group overflow-hidden border-border/80 bg-card/95 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+      <div className="aspect-square overflow-hidden bg-muted">
         <img
           src={getProductImage(product.images)}
           alt={product.title}
@@ -15,15 +17,15 @@ export default function ProductCard({ product }) {
           }}
         />
       </div>
-      <div className="p-4">
-        <span className="inline-block text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-full mb-2">
+      <CardContent className="p-4">
+        <Badge variant="secondary" className="mb-2 font-medium">
           {product.category?.name || 'Uncategorized'}
-        </span>
-        <h3 className="font-semibold text-slate-800 dark:text-slate-100 text-sm leading-snug line-clamp-2 mb-2">
+        </Badge>
+        <h3 className="mb-2 line-clamp-2 text-sm font-semibold leading-snug text-foreground">
           {product.title}
         </h3>
-        <p className="text-base font-bold text-slate-900 dark:text-slate-100">${product.price?.toLocaleString()}</p>
-      </div>
-    </div>
+        <p className="text-base font-bold text-foreground">${product.price?.toLocaleString()}</p>
+      </CardContent>
+    </Card>
   );
 }

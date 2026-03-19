@@ -1,19 +1,20 @@
 import ProductCard from './ProductCard.jsx';
+import { Card, CardContent } from './ui/card.jsx';
 
 const SkeletonCard = () => (
-  <div className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
-    <div className="aspect-square bg-slate-200 dark:bg-slate-700 animate-pulse" />
-    <div className="p-4 space-y-2">
-      <div className="h-4 bg-slate-200 dark:bg-slate-600 rounded animate-pulse w-1/3" />
-      <div className="h-4 bg-slate-200 dark:bg-slate-600 rounded animate-pulse w-full" />
-      <div className="h-4 bg-slate-200 dark:bg-slate-600 rounded animate-pulse w-2/3" />
-      <div className="h-5 bg-slate-200 dark:bg-slate-600 rounded animate-pulse w-1/4" />
-    </div>
-  </div>
+  <Card className="overflow-hidden border-border/80 bg-card/95">
+    <div className="aspect-square animate-pulse bg-muted" />
+    <CardContent className="space-y-2 p-4">
+      <div className="h-4 w-1/3 animate-pulse rounded bg-muted" />
+      <div className="h-4 w-full animate-pulse rounded bg-muted" />
+      <div className="h-4 w-2/3 animate-pulse rounded bg-muted" />
+      <div className="h-5 w-1/4 animate-pulse rounded bg-muted" />
+    </CardContent>
+  </Card>
 );
 
 export default function ProductGrid({ products, isLoading }) {
-  const gridClass = 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4';
+  const gridClass = 'grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5';
 
   if (isLoading) {
     return (

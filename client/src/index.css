@@ -3,7 +3,48 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --background: 220 26% 97%;
+    --foreground: 224 71% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
+    --primary: 238 83% 67%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 16% 94%;
+    --secondary-foreground: 224 47% 11%;
+    --muted: 220 16% 94%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 220 16% 94%;
+    --accent-foreground: 224 47% 11%;
+    --border: 220 13% 88%;
+    --input: 220 13% 88%;
+    --ring: 238 83% 67%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 224 28% 6%;
+    --foreground: 210 40% 98%;
+    --card: 222 26% 10%;
+    --card-foreground: 210 40% 98%;
+    --primary: 238 83% 67%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 222 20% 15%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 222 20% 15%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 222 20% 15%;
+    --accent-foreground: 210 40% 96%;
+    --border: 217 19% 22%;
+    --input: 217 19% 22%;
+    --ring: 238 83% 67%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
   body {
-    @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-100;
+    @apply bg-background text-foreground antialiased;
   }
 }
