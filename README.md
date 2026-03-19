@@ -151,6 +151,44 @@ cd client && npm run dev
 
 ---
 
+## API Testing
+
+Backend API tests use **Vitest + Supertest** and run against a **dedicated Postgres test database**.
+
+### 1. Create a separate test database
+
+In PostgreSQL, create:
+
+- `support_tickets_test`
+
+### 2. Configure test env
+
+```bash
+cp server/.env.test.example server/.env.test
+```
+
+Then update `server/.env.test` with your local PostgreSQL password if needed:
+
+```env
+DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@localhost:5432/support_tickets_test
+```
+
+### 3. Run API tests
+
+```bash
+cd server
+npm test
+```
+
+Useful variants:
+
+```bash
+npm run test:watch
+npm run test:api
+```
+
+---
+
 ## API Endpoints
 
 | Method | Route | Description |
@@ -243,3 +281,12 @@ Pragmatic for a 3-day assignment. A custom modal adds polish without adding arch
 **Recommended stack:**
 - **API + Database** → Railway (Node.js + PostgreSQL in one project)
 - **Frontend** → Vercel (static Vite build, points to Railway API)
+
+### Deployment Test Gate (Main Branch)
+
+- GitHub Actions workflow: `.github/workflows/api-tests.yml`
+- Runs API tests on:
+  - pull requests targeting `main`
+  - pushes to `main`
+- To enforce this gate, set branch protection on `main` and require the **API Tests / api-tests** check before merge.
+- Because Railway and Vercel deploy from `main`, this ensures production deployments happen only from commits that passed the backend API suite.

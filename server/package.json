@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node --watch src/app.js",
-    "start": "node db/init.js && node db/seed.js; node src/app.js",
+    "dev": "node --watch src/server.js",
+    "start": "node db/init.js && node db/seed.js && node src/server.js",
     "db:init": "node db/init.js",
-    "db:seed": "node db/seed.js"
+    "db:seed": "node db/seed.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:api": "vitest run tests/api"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -15,5 +18,9 @@
     "nanoid": "^5.0.7",
     "openai": "^6.32.0",
     "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "supertest": "^7.2.2",
+    "vitest": "^4.1.0"
   }
 }
