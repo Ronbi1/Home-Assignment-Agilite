@@ -37,3 +37,8 @@ export const fetchStats = async () => {
   const { data } = await api.get(`${BASE}/stats`);
   return data;
 };
+
+export const suggestReply = async (ticketId) => {
+  const { data } = await api.post('/api/ai/suggest-reply', { ticketId });
+  return data;
+};

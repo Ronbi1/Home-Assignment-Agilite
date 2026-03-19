@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, XCircle, Calendar, Mail, User, PackageX } from 'lucide-react';
-import { useTicket, useReplies, useCloseTicket, useAddReply } from '../hooks/useTicket.js';
+import { useTicket, useReplies, useCloseTicket, useAddReply, useSuggestReply } from '../hooks/useTicket.js';
 import { useProduct } from '../hooks/useProducts.js';
 import { getProductImage } from '../lib/productImage.js';
 import TicketStatusBadge from '../components/TicketStatusBadge.jsx';
@@ -91,6 +91,7 @@ export default function TicketDetailPage() {
   const { data: replies = [], isLoading: repliesLoading } = useReplies(id);
   const { mutateAsync: closeTicket, isPending: isClosing } = useCloseTicket(id);
   const { mutateAsync: addReply, isPending: isReplying } = useAddReply(id);
+  const { mutateAsync: suggestReply, isPending: isSuggesting } = useSuggestReply(id);
   const [actionError, setActionError] = useState(null);
 
   const handleClose = async () => {
@@ -110,6 +111,15 @@ export default function TicketDetailPage() {
       await addReply({ content: data.content, author: 'Support Agent' });
     } catch {
       setActionError('Failed to send reply. Please try again.');
+    }
+  };
+
+  const handleSuggest = async () => {
+    try {
+      setActionError(null);
+      return await suggestReply();
+    } catch {
+      setActionError('Failed to generate suggestion. Please try again.');
     }
   };
 
@@ -204,7 +214,7 @@ export default function TicketDetailPage() {
           </div>
 
           {ticket.status === 'open' ? (
-            <ReplyForm onSubmit={handleReply} isLoading={isReplying} />
+            <ReplyForm onSubmit={handleReply} isLoading={isReplying} onSuggest={handleSuggest} isSuggesting={isSuggesting} />
           ) : (
             <div className="p-4 border-t border-slate-100 dark:border-slate-700 text-center text-xs text-slate-400">
               This ticket is closed — no further replies can be added.

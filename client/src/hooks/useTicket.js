@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchTicket, updateTicketStatus, fetchReplies, addReply } from '../api/tickets.api.js';
+import { fetchTicket, updateTicketStatus, fetchReplies, addReply, suggestReply } from '../api/tickets.api.js';
 
 export const useTicket = (id) => {
   return useQuery({
@@ -36,5 +36,11 @@ export const useAddReply = (ticketId) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['replies', ticketId] });
     },
+  });
+};
+
+export const useSuggestReply = (ticketId) => {
+  return useMutation({
+    mutationFn: () => suggestReply(ticketId),
   });
 };
