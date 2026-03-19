@@ -16,7 +16,7 @@ async function fetchProductIds() {
   const res = await fetch(PRODUCTS_API);
   if (!res.ok) throw new Error(`Products API returned ${res.status}`);
   const products = await res.json();
-  return products.map((p) => p.id);
+  return products.map((p) => p.id).filter((id) => Number.isInteger(id) && id > 0);
 }
 
 function buildTickets(productIds) {
@@ -124,6 +124,9 @@ const replies = [
 async function seed() {
   console.log('Fetching current product IDs from external API...');
   const productIds = await fetchProductIds();
+  if (productIds.length < 6) {
+    throw new Error(`Not enough valid product IDs fetched (${productIds.length}) to seed tickets`);
+  }
   console.log(`Using product IDs: ${productIds.join(', ')}`);
 
   const tickets = buildTickets(productIds);
