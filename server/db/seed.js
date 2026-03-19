@@ -1,6 +1,6 @@
 import pg from 'pg';
 import dotenv from 'dotenv';
-import { normalizeProduct } from '../src/features/products/product.utils.js';
+import { normalizeProductBase } from '../src/features/products/product.utils.js';
 
 dotenv.config();
 
@@ -18,7 +18,7 @@ async function fetchProductIds() {
   if (!res.ok) throw new Error(`Products API returned ${res.status}`);
   const products = await res.json();
   return products
-    .map(normalizeProduct)
+    .map(normalizeProductBase)
     .filter(Boolean)
     .map((product) => product.id);
 }
