@@ -1,18 +1,19 @@
 import axios from 'axios';
+import api from '../lib/axios.js';
 
-const PRODUCTS_BASE = 'https://api.escuelajs.co/api/v1/products';
+const PRODUCTS_BASE = '/api/products';
 
 export const fetchProducts = async (limit = 20) => {
-  const { data } = await axios.get(`${PRODUCTS_BASE}?limit=${limit}`);
+  const { data } = await api.get(PRODUCTS_BASE, { params: { limit } });
   return data;
 };
 
 export const fetchProductById = async (id) => {
   try {
-    const { data } = await axios.get(`${PRODUCTS_BASE}/${id}`);
+    const { data } = await api.get(`${PRODUCTS_BASE}/${id}`);
     return data;
   } catch (error) {
-    // External catalog IDs can go stale; treat expected client errors as soft-miss.
+    // A missing product in the backend cache should not break the UI.
     if (axios.isAxiosError(error)) {
       const status = error.response?.status;
       if (status && status >= 400 && status < 500) {
