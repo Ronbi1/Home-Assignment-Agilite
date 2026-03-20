@@ -466,35 +466,40 @@ Common error shape:
 
 ## 🧪 Testing
 
-Backend API tests are implemented with Vitest and Supertest and run against PostgreSQL.
+The application features a comprehensive test suite (55 tests) covering both the backend API and the frontend UI, ensuring stable happy paths and resilient edge-case handling.
 
-### What Is Covered
+### Backend Testing (Vitest + Supertest + PostgreSQL)
 
-- Health endpoint
-- Ticket CRUD and status workflows
-- Reply flows and closed-ticket guards
-- Products API behavior
-- AI reply suggestion endpoint
-- Urgent-feed scoring behavior
+**Happy Paths:**
+- Health endpoint and database connectivity.
+- Ticket CRUD operations and status transition workflows.
+- Reply workflows, ensuring proper linking to tickets.
+- Products API fetching and caching behavior.
+- AI reply suggestions and urgency-feed scoring.
+
+**Edge Cases & Security (Advanced Coverage):**
+- **Payload Validation:** Enforces strict upper-bound limits for names, subjects, and messages to prevent payload bloat, alongside email format validation.
+- **State Machine Guards:** Prevents illegal state transitions, such as attempting to close a ticket that is already closed (returns `409 Conflict`) or replying to closed tickets.
+- **External Service Failures:** Gracefully handles simulated timeouts, HTTP 500 errors, and malformed JSON from external dependencies (OpenAI and EscuelaJS) without crashing the server.
+
+### Frontend Testing (Vitest + React Testing Library)
+
+- Initialized frontend testing infrastructure.
+- Integration coverage for `DashboardPage.jsx`, verifying that the Analytics strip correctly calculates and renders total, open, and closed ticket counts from mocked API responses.
 
 ### Test Setup Notes
 
 - Tests load `server/.env.test`.
-- Each worker gets its own PostgreSQL schema via `search_path`, which keeps tests isolated.
-- The schema is created from `server/db/init.sql` before the suite runs.
-- External dependencies such as OpenAI and the product API are mocked in tests.
+- Each worker gets its own PostgreSQL schema via `search_path`, which keeps parallel test runs completely isolated.
+- The schema is automatically created from `server/db/init.sql` before the suite runs.
+- External API dependencies (OpenAI and EscuelaJS) are strictly mocked in the test environment.
 
-### CI
+### CI/CD
 
 GitHub Actions runs the backend suite on pushes to `main` and pull requests targeting `main`, using:
-
 - Ubuntu runner
 - Node `20`
 - PostgreSQL `16`
-
-Current gap:
-
-- There is no automated frontend test suite yet.
 
 ## 🌟 What Goes Beyond The Brief
 
