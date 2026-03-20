@@ -10,13 +10,14 @@ const STATUS_CONFIG = {
 };
 
 export default function TicketStatusBadge({ status }) {
-  const config = STATUS_CONFIG[status] || STATUS_CONFIG.open;
+  const safeStatus = typeof status === 'string' && status.trim() ? status : 'open';
+  const config = STATUS_CONFIG[safeStatus] || STATUS_CONFIG.open;
   return (
     <span
       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${config.badge}`}
     >
       <span className={`w-1.5 h-1.5 rounded-full ${config.dot}`} />
-      {status.charAt(0).toUpperCase() + status.slice(1)}
+      {safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1)}
     </span>
   );
 }

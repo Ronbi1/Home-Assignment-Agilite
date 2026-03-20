@@ -147,45 +147,21 @@ export default function DashboardPage() {
               <CardTitle className="text-base">Tickets</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <TicketFilters
-                  statusMode={statusMode}
-                  onStatusModeChange={setStatusMode}
-                  sortMode={sortMode}
-                  onSortModeChange={setSortMode}
-                  productFilter={productFilter}
-                  onProductFilterChange={setProductFilter}
-                  productOptions={productOptions}
-                />
-                <div className="flex flex-wrap items-center gap-2">
-                  <label htmlFor="reportScope" className="text-xs font-medium text-muted-foreground">
-                    Report scope
-                  </label>
-                  <select
-                    id="reportScope"
-                    value={reportScope}
-                    onChange={(event) => setReportScope(event.target.value)}
-                    className="h-9 rounded-md border border-input bg-background px-2 text-sm"
-                    disabled={isGeneratingReport}
-                  >
-                    <option value={REPORT_SCOPES.LAST_20}>Last 20 tickets</option>
-                    <option value={REPORT_SCOPES.SELECTED}>Selected tickets</option>
-                  </select>
-                  {reportScope === REPORT_SCOPES.SELECTED ? (
-                    <>
-                      <Button variant="outline" size="sm" onClick={handleSelectAll} disabled={isGeneratingReport}>
-                        Select all
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={handleClearAll} disabled={isGeneratingReport}>
-                        Clear all
-                      </Button>
-                    </>
-                  ) : null}
+              <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-x-4 sm:gap-y-4">
+                <div className="min-w-0">
+                  <TicketFilters
+                    statusMode={statusMode}
+                    onStatusModeChange={setStatusMode}
+                    sortMode={sortMode}
+                    onSortModeChange={setSortMode}
+                    productFilter={productFilter}
+                    onProductFilterChange={setProductFilter}
+                    productOptions={productOptions}
+                  />
                 </div>
-              </div>
-              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="relative w-full sm:w-64">
+
+                <div className="min-w-0 sm:row-start-2 sm:col-start-1">
+                  <div className="relative w-full sm:w-64 sm:max-w-full">
                     <Search
                       size={15}
                       className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
@@ -199,16 +175,74 @@ export default function DashboardPage() {
                     />
                   </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Button size="sm" onClick={generatePdf} disabled={isGeneratingReport}>
+
+                <div className="flex min-w-0 flex-col gap-2 sm:col-start-2 sm:row-start-1 sm:min-w-[220px] sm:justify-self-end">
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="reportScope" className="text-xs font-medium text-muted-foreground">
+                      Report scope
+                    </label>
+                    <select
+                      id="reportScope"
+                      value={reportScope}
+                      onChange={(event) => setReportScope(event.target.value)}
+                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
+                      disabled={isGeneratingReport}
+                    >
+                      <option value={REPORT_SCOPES.LAST_20}>Last 20 tickets</option>
+                      <option value={REPORT_SCOPES.SELECTED}>Selected tickets</option>
+                    </select>
+                  </div>
+                  {reportScope === REPORT_SCOPES.SELECTED ? (
+                    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleSelectAll}
+                        disabled={isGeneratingReport}
+                        className="w-full justify-center sm:w-auto"
+                      >
+                        Select all
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleClearAll}
+                        disabled={isGeneratingReport}
+                        className="w-full justify-center sm:w-auto"
+                      >
+                        Clear all
+                      </Button>
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="flex flex-col gap-2 sm:col-start-2 sm:row-start-2 sm:flex-row sm:flex-wrap sm:justify-self-end">
+                  <Button
+                    size="sm"
+                    onClick={generatePdf}
+                    disabled={isGeneratingReport}
+                    className="w-full justify-center sm:w-auto"
+                  >
                     <Download size={14} className="mr-1.5" />
                     {isGeneratingReport ? 'Generating...' : 'Export PDF'}
                   </Button>
-                  <Button variant="outline" size="sm" onClick={shareByEmail} disabled={isGeneratingReport}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={shareByEmail}
+                    disabled={isGeneratingReport}
+                    className="w-full justify-center sm:w-auto"
+                  >
                     <Mail size={14} className="mr-1.5" />
                     Email
                   </Button>
-                  <Button variant="outline" size="sm" onClick={shareNative} disabled={isGeneratingReport}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={shareNative}
+                    disabled={isGeneratingReport}
+                    className="w-full justify-center sm:w-auto"
+                  >
                     <Share2 size={14} className="mr-1.5" />
                     Share
                   </Button>

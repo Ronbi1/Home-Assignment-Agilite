@@ -198,7 +198,7 @@ async function seed() {
 }
 
 seed().catch((err) => {
-  console.error('⚠ Seed failed (non-fatal):', err.message);
+  console.error('⚠ Seed failed:', err.message);
   pool.end();
-  process.exit(0);
+  process.exit(1);
 });
