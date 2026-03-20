@@ -12,7 +12,7 @@ const createError = (message, status = 400) => {
   return err;
 };
 
-const validateTicketFields = ({ customerName, customerEmail, subject, message, productId }) => {
+const validateTicketFields = ({ customerName, customerEmail, subject, message, productId, productTitle, productPrice, productImage }) => {
   if (!customerName || !customerEmail || !subject || !message || !productId) {
     throw createError('All fields are required');
   }
@@ -21,6 +21,9 @@ const validateTicketFields = ({ customerName, customerEmail, subject, message, p
   if (subject.trim().length < 5) throw createError('Subject must be at least 5 characters');
   if (message.trim().length < 10) throw createError('Message must be at least 10 characters');
   if (!Number.isInteger(productId) || productId < 1) throw createError('Please select a valid product');
+  if (!productTitle || productTitle.trim().length < 1) throw createError('Product details are required');
+  if (!Number.isFinite(productPrice) || productPrice < 0) throw createError('Please select a valid product');
+  if (!productImage || productImage.trim().length < 1) throw createError('Product details are required');
 };
 
 // ── Tickets ──────────────────────────────────────────────────────────────────
@@ -35,10 +38,10 @@ export const getTicketById = async (id) => {
   return ticket;
 };
 
-export const createTicket = async ({ customerName, customerEmail, subject, message, productId }) => {
-  validateTicketFields({ customerName, customerEmail, subject, message, productId });
+export const createTicket = async ({ customerName, customerEmail, subject, message, productId, productTitle, productPrice, productImage }) => {
+  validateTicketFields({ customerName, customerEmail, subject, message, productId, productTitle, productPrice, productImage });
   const id = `TKT-${generateId()}`;
-  return ticketRepo.create({ id, customerName, customerEmail, subject, message, productId });
+  return ticketRepo.create({ id, customerName, customerEmail, subject, message, productId, productTitle, productPrice, productImage });
 };
 
 export const updateTicketStatus = async (id, status) => {

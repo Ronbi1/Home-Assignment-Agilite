@@ -6,6 +6,7 @@ import { PlusCircle, Package, CheckCircle } from 'lucide-react';
 import { createTicketSchema } from '../schemas/ticket.schema.js';
 import { useCreateTicket } from '../hooks/useTickets.js';
 import ProductSelectorModal from '../components/ProductSelectorModal.jsx';
+import { getProductImage } from '../lib/productImage.js';
 
 const InputField = ({ label, error, required, children }) => (
   <div>
@@ -53,6 +54,9 @@ export default function CreateTicketPage() {
         subject: data.subject,
         message: data.message,
         productId: data.product_id,
+        productTitle: selectedProduct?.title || `Product #${data.product_id}`,
+        productPrice: Number(selectedProduct?.price ?? 0),
+        productImage: getProductImage(selectedProduct?.images),
       });
       setSubmitted(true);
       reset();

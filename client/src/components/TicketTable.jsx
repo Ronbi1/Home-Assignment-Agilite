@@ -1,28 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import TicketStatusBadge from './TicketStatusBadge.jsx';
 import TicketActionsMenu from './TicketActionsMenu.jsx';
-import { useProduct } from '../hooks/useProducts.js';
 import { Card } from './ui/card.jsx';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table.jsx';
-
-function ProductName({ productId }) {
-  const { data, isLoading, isError } = useProduct(productId);
-  if (isLoading) {
-    return <span className="inline-block w-24 h-3.5 bg-slate-200 dark:bg-slate-600 rounded animate-pulse" />;
-  }
-  if (isError || !data) {
-    return (
-      <span className="truncate max-w-[160px] block text-slate-400 dark:text-slate-500">
-        Product unavailable
-      </span>
-    );
-  }
-  return (
-    <span className="truncate max-w-[160px] block text-slate-600 dark:text-slate-400">
-      {data.title || `Product #${productId}`}
-    </span>
-  );
-}
 
 const SkeletonRow = ({ columns }) => (
   <TableRow>
@@ -107,7 +87,9 @@ export default function TicketTable({
                   <span className="truncate block">{ticket.subject}</span>
                 </TableCell>
                 <TableCell>
-                  <ProductName productId={ticket.product_id} />
+                  <span className="block max-w-[160px] truncate text-slate-600 dark:text-slate-400">
+                    {ticket.product_title || (ticket.product_id ? `Product #${ticket.product_id}` : 'Product unavailable')}
+                  </span>
                 </TableCell>
                 <TableCell>
                   <TicketStatusBadge status={ticket.status} />

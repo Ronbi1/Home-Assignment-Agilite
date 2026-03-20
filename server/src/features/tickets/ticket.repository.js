@@ -14,12 +14,12 @@ export const findById = async (id) => {
   return rows[0] || null;
 };
 
-export const create = async ({ id, customerName, customerEmail, subject, message, productId }) => {
+export const create = async ({ id, customerName, customerEmail, subject, message, productId, productTitle, productPrice, productImage }) => {
   const { rows } = await pool.query(
-    `INSERT INTO tickets (id, customer_name, customer_email, subject, message, product_id)
-     VALUES ($1, $2, $3, $4, $5, $6)
+    `INSERT INTO tickets (id, customer_name, customer_email, subject, message, product_id, product_title, product_price, product_image)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
      RETURNING *`,
-    [id, customerName, customerEmail, subject, message, productId]
+    [id, customerName, customerEmail, subject, message, productId, productTitle, productPrice, productImage]
   );
   return rows[0];
 };

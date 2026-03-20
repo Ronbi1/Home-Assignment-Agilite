@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, XCircle, Calendar, Mail, User, PackageX } from 'lucide-react';
 import { useTicket, useReplies, useCloseTicket, useAddReply, useSuggestReply } from '../hooks/useTicket.js';
-import { useProduct } from '../hooks/useProducts.js';
-import { getProductImage } from '../lib/productImage.js';
 import TicketStatusBadge from '../components/TicketStatusBadge.jsx';
 import ConversationThread from '../components/ConversationThread.jsx';
 import ReplyForm from '../components/ReplyForm.jsx';
@@ -11,22 +9,13 @@ import ErrorMessage from '../components/ErrorMessage.jsx';
 
 const FALLBACK_IMAGE = 'https://placehold.co/80x80?text=?';
 
-function ProductInfo({ productId }) {
-  const { data: product, isLoading, isError } = useProduct(productId);
+function ProductInfo({ ticket }) {
+  const title = ticket?.product_title || (ticket?.product_id ? `Product #${ticket.product_id}` : null);
+  const image = ticket?.product_image || FALLBACK_IMAGE;
+  const hasPrice = Number.isFinite(Number(ticket?.product_price));
+  const price = hasPrice ? Number(ticket.product_price) : null;
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl animate-pulse">
-        <div className="w-14 h-14 bg-slate-200 dark:bg-slate-600 rounded-lg flex-shrink-0" />
-        <div className="space-y-2 flex-1">
-          <div className="h-3.5 bg-slate-200 dark:bg-slate-600 rounded w-3/4" />
-          <div className="h-3 bg-slate-200 dark:bg-slate-600 rounded w-1/3" />
-        </div>
-      </div>
-    );
-  }
-
-  if (isError || !product || !product.title) {
+  if (!title) {
     return (
       <div className="flex items-center gap-2 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl text-slate-400">
         <PackageX size={18} className="flex-shrink-0" />
@@ -38,21 +27,21 @@ function ProductInfo({ productId }) {
   return (
     <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl">
       <img
-        src={getProductImage(product.images)}
-        alt={product.title}
+        src={image}
+        alt={title}
         className="w-14 h-14 rounded-lg object-cover flex-shrink-0 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700"
         onError={(e) => {
           e.target.src = FALLBACK_IMAGE;
         }}
       />
       <div className="min-w-0">
-        <p className="text-xs font-medium text-indigo-600 mb-0.5">
-          {product.category?.name || 'Uncategorized'}
-        </p>
-        <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-snug line-clamp-2">
-          {product.title}
-        </p>
-        <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mt-0.5">${product.price}</p>
+        <p className="text-xs font-medium text-indigo-600 mb-0.5">Snapshot</p>
+        <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-snug line-clamp-2">{title}</p>
+        {price !== null ? (
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mt-0.5">${price.toLocaleString()}</p>
+        ) : (
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Price unavailable</p>
+        )}
       </div>
     </div>
   );
@@ -187,7 +176,7 @@ export default function TicketDetailPage() {
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
               Product
             </p>
-            <ProductInfo productId={ticket.product_id} />
+            <ProductInfo ticket={ticket} />
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">

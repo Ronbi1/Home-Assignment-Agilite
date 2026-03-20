@@ -1,6 +1,6 @@
 import pg from 'pg';
 import dotenv from 'dotenv';
-import { normalizeProductBase } from '../src/features/products/product.utils.js';
+import { getCategoryDefaultImage, getImageCandidates, normalizeProductBase } from '../src/features/products/product.utils.js';
 
 dotenv.config();
 
@@ -13,17 +13,26 @@ const pool = new Pool({
 
 const PRODUCTS_API = 'https://api.escuelajs.co/api/v1/products?limit=200';
 
-async function fetchProductIds() {
+async function fetchProductsForSeed() {
   const res = await fetch(PRODUCTS_API);
   if (!res.ok) throw new Error(`Products API returned ${res.status}`);
-  const products = await res.json();
-  return products
-    .map(normalizeProductBase)
-    .filter(Boolean)
-    .map((product) => product.id);
+  const rawProducts = await res.json();
+  return rawProducts
+    .map((rawProduct) => {
+      const base = normalizeProductBase(rawProduct);
+      if (!base) return null;
+      const image = getImageCandidates(rawProduct?.images)[0] || getCategoryDefaultImage(base.category?.name);
+      return {
+        id: base.id,
+        title: base.title || `Product #${base.id}`,
+        price: Number(base.price) || 0,
+        image,
+      };
+    })
+    .filter(Boolean);
 }
 
-function buildTickets(productIds) {
+function buildTickets(products) {
   return [
     {
       id: 'TKT-A1B2C3',
@@ -31,7 +40,10 @@ function buildTickets(productIds) {
       customer_email: 'alice@example.com',
       subject: 'Product arrived damaged',
       message: 'My order arrived with significant damage to the packaging and the item itself is scratched. I would like a replacement sent as soon as possible.',
-      product_id: productIds[0],
+      product_id: products[0].id,
+      product_title: products[0].title,
+      product_price: products[0].price,
+      product_image: products[0].image,
       status: 'open',
     },
     {
@@ -40,7 +52,10 @@ function buildTickets(productIds) {
       customer_email: 'bob@example.com',
       subject: 'Wrong item delivered',
       message: 'I ordered the blue variant but received the red one. Could you please arrange an exchange at no extra cost?',
-      product_id: productIds[1],
+      product_id: products[1].id,
+      product_title: products[1].title,
+      product_price: products[1].price,
+      product_image: products[1].image,
       status: 'open',
     },
     {
@@ -49,7 +64,10 @@ function buildTickets(productIds) {
       customer_email: 'carol@example.com',
       subject: 'Item missing from order',
       message: 'My order was incomplete. The product I paid for was not inside the box when it arrived.',
-      product_id: productIds[2],
+      product_id: products[2].id,
+      product_title: products[2].title,
+      product_price: products[2].price,
+      product_image: products[2].image,
       status: 'closed',
     },
     {
@@ -58,7 +76,10 @@ function buildTickets(productIds) {
       customer_email: 'david@example.com',
       subject: 'Refund request',
       message: 'I changed my mind about the product and would like to initiate a return and receive a full refund within the return window.',
-      product_id: productIds[3],
+      product_id: products[3].id,
+      product_title: products[3].title,
+      product_price: products[3].price,
+      product_image: products[3].image,
       status: 'open',
     },
     {
@@ -67,7 +88,10 @@ function buildTickets(productIds) {
       customer_email: 'emma@example.com',
       subject: 'Product not as described',
       message: 'The product description on the website does not match what I received. The dimensions were completely different from what was advertised.',
-      product_id: productIds[4],
+      product_id: products[4].id,
+      product_title: products[4].title,
+      product_price: products[4].price,
+      product_image: products[4].image,
       status: 'closed',
     },
     {
@@ -76,7 +100,10 @@ function buildTickets(productIds) {
       customer_email: 'frank@example.com',
       subject: 'Delivery delay inquiry',
       message: "My order was supposed to arrive 3 days ago. The tracking page hasn't updated in a week. Please investigate what happened.",
-      product_id: productIds[5],
+      product_id: products[5].id,
+      product_title: products[5].title,
+      product_price: products[5].price,
+      product_image: products[5].image,
       status: 'open',
     },
   ];
@@ -127,22 +154,33 @@ const replies = [
 
 async function seed() {
   console.log('Fetching current product IDs from external API...');
-  const productIds = await fetchProductIds();
-  if (productIds.length < 6) {
-    throw new Error(`Not enough valid product IDs fetched (${productIds.length}) to seed tickets`);
+  const products = await fetchProductsForSeed();
+  if (products.length < 6) {
+    throw new Error(`Not enough valid products fetched (${products.length}) to seed tickets`);
   }
-  console.log(`Using product IDs: ${productIds.join(', ')}`);
+  console.log(`Using product IDs: ${products.slice(0, 6).map((product) => product.id).join(', ')}`);
 
-  const tickets = buildTickets(productIds);
+  const tickets = buildTickets(products);
 
   console.log('Seeding database...');
 
   await pool.query('TRUNCATE tickets CASCADE');
   for (const ticket of tickets) {
     await pool.query(
-      `INSERT INTO tickets (id, customer_name, customer_email, subject, message, product_id, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      [ticket.id, ticket.customer_name, ticket.customer_email, ticket.subject, ticket.message, ticket.product_id, ticket.status]
+      `INSERT INTO tickets (id, customer_name, customer_email, subject, message, product_id, product_title, product_price, product_image, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      [
+        ticket.id,
+        ticket.customer_name,
+        ticket.customer_email,
+        ticket.subject,
+        ticket.message,
+        ticket.product_id,
+        ticket.product_title,
+        ticket.product_price,
+        ticket.product_image,
+        ticket.status,
+      ]
     );
   }
   console.log(`Inserted ${tickets.length} tickets`);

@@ -6,6 +6,9 @@ export const ticketPayload = (overrides = {}) => ({
   subject: 'Package arrived damaged',
   message: 'The package was damaged and the product is scratched badly.',
   productId: 101,
+  productTitle: 'Keyboard',
+  productPrice: 49,
+  productImage: 'https://cdn.example.com/keyboard.png',
   ...overrides,
 });
 
@@ -17,13 +20,16 @@ export const insertTicket = async (overrides = {}) => {
     subject: 'Seeded ticket',
     message: 'This ticket is inserted directly for integration tests.',
     product_id: 202,
+    product_title: 'Chair',
+    product_price: 149,
+    product_image: 'https://cdn.example.com/chair.png',
     status: 'open',
     ...overrides,
   };
 
   const { rows } = await pool.query(
-    `INSERT INTO tickets (id, customer_name, customer_email, subject, message, product_id, status)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `INSERT INTO tickets (id, customer_name, customer_email, subject, message, product_id, product_title, product_price, product_image, status)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
      RETURNING *`,
     [
       ticket.id,
@@ -32,6 +38,9 @@ export const insertTicket = async (overrides = {}) => {
       ticket.subject,
       ticket.message,
       ticket.product_id,
+      ticket.product_title,
+      ticket.product_price,
+      ticket.product_image,
       ticket.status,
     ]
   );
