@@ -2,15 +2,42 @@ import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 import app from '../../src/app.js';
 import { insertReply, insertTicket, ticketPayload } from '../fixtures/tickets.fixtures.js';
+import { openAiCreateMock } from '../setup/external.setup.js';
 
 describe('Tickets API', () => {
-  it('creates a ticket with generated id', async () => {
+  it('creates a ticket with generated id and an AI-first reply', async () => {
     const res = await request(app).post('/api/tickets').send(ticketPayload());
 
     expect(res.status).toBe(201);
     expect(res.body.id).toMatch(/^TKT-[A-Z0-9]{6}$/);
     expect(res.body.status).toBe('open');
     expect(res.body.subject).toBe('Package arrived damaged');
+    expect(res.body.has_ai_first_reply).toBe(true);
+    expect(openAiCreateMock).toHaveBeenCalledTimes(1);
+
+    const repliesRes = await request(app).get(`/api/tickets/${res.body.id}/replies`);
+
+    expect(repliesRes.status).toBe(200);
+    expect(repliesRes.body).toHaveLength(1);
+    expect(repliesRes.body[0]).toMatchObject({
+      author: 'AI Support Agent',
+      content: 'Thanks for contacting us. We are on it.',
+    });
+  });
+
+  it('creates the ticket normally when the AI-first reply fails', async () => {
+    openAiCreateMock.mockRejectedValueOnce(new Error('OpenAI unavailable'));
+
+    const res = await request(app).post('/api/tickets').send(ticketPayload({ subject: 'Replacement request' }));
+
+    expect(res.status).toBe(201);
+    expect(res.body.id).toMatch(/^TKT-[A-Z0-9]{6}$/);
+    expect(res.body.has_ai_first_reply).toBe(false);
+
+    const repliesRes = await request(app).get(`/api/tickets/${res.body.id}/replies`);
+
+    expect(repliesRes.status).toBe(200);
+    expect(repliesRes.body).toEqual([]);
   });
 
   it('returns 404 for missing ticket', async () => {
@@ -88,6 +115,19 @@ describe('Tickets API', () => {
     expect(res.status).toBe(200);
     expect(res.body).toHaveLength(2);
     expect(res.body[0].content).toBe('First support message');
+  });
+
+  it('returns has_ai_first_reply for ticket reads', async () => {
+    const aiFirst = await insertTicket({ id: 'TKT-AIFLAG' });
+    const humanFirst = await insertTicket({ id: 'TKT-HUMAN1' });
+    await insertReply(aiFirst.id, { author: 'AI Support Agent', content: 'Automated first reply' });
+    await insertReply(humanFirst.id, { author: 'Support Agent', content: 'Manual first reply' });
+
+    const res = await request(app).get('/api/tickets');
+
+    expect(res.status).toBe(200);
+    expect(res.body.find((ticket) => ticket.id === aiFirst.id)?.has_ai_first_reply).toBe(true);
+    expect(res.body.find((ticket) => ticket.id === humanFirst.id)?.has_ai_first_reply).toBe(false);
   });
 
   it('blocks replies on closed tickets', async () => {

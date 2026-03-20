@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { LayoutDashboard, Search, Download, Mail, Share2 } from 'lucide-react';
+import { LayoutDashboard, Search, Download, Mail, Share2, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useTickets, useUrgentFeed } from '../hooks/useTickets.js';
 import useFilteredTickets from '../hooks/useFilteredTickets.js';
 import useReport from '../hooks/useReport.js';
@@ -9,6 +10,7 @@ import AnalyticsStrip from '../components/AnalyticsStrip.jsx';
 import UrgentFeedCard from '../components/UrgentFeedCard.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import PageLoadingState from '../components/PageLoadingState.jsx';
+import { Badge } from '../components/ui/badge.jsx';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card.jsx';
 import { Input } from '../components/ui/input.jsx';
 import { Button } from '../components/ui/button.jsx';
@@ -31,7 +33,62 @@ function ToastMessage({ toast, onClose }) {
   );
 }
 
+function AiFirstReplyCard({ tickets, onOpenTicket }) {
+  return (
+    <Card className="h-full border-border/70 bg-card/95 shadow-sm">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center gap-2 text-base font-semibold">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-500 dark:bg-indigo-500/15">
+            <Sparkles size={16} />
+          </div>
+          <div className="flex flex-col">
+            <span>AI First Replies</span>
+            <span className="text-sm font-normal text-muted-foreground">New tickets that already received an automatic first response.</span>
+          </div>
+          <Badge
+            variant="outline"
+            className="ml-auto border-transparent bg-indigo-500/15 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300"
+          >
+            {tickets.length} open
+          </Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="pt-0">
+        {tickets.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No AI-first replies are waiting right now.</p>
+        ) : (
+          <div className="space-y-2">
+            {tickets.map((ticket) => (
+              <button
+                key={ticket.id}
+                type="button"
+                onClick={() => onOpenTicket(ticket.id)}
+                className="flex w-full items-start justify-between rounded-xl border border-border/70 px-4 py-3 text-left transition-colors hover:bg-accent/50 cursor-pointer"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-foreground">{ticket.subject}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {ticket.id}
+                    {ticket.customer_name ? ` · ${ticket.customer_name}` : ''}
+                  </p>
+                </div>
+                <Badge
+                  variant="outline"
+                  className="ml-3 border-transparent bg-indigo-500/15 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300"
+                >
+                  AI First
+                </Badge>
+              </button>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function DashboardPage() {
+  const navigate = useNavigate();
   // state
   const [statusMode, setStatusMode] = useState(STATUS_MODES.ALL_GROUPED);
   const [sortMode, setSortMode] = useState(SORT_MODES.DATE_DESC);
@@ -64,6 +121,10 @@ export default function DashboardPage() {
     productFilter,
     sortMode,
   });
+  const aiFirstTickets = useMemo(
+    () => tickets.filter((ticket) => ticket.status === 'open' && ticket.has_ai_first_reply),
+    [tickets],
+  );
 
   const {
     isGeneratingReport,
@@ -136,7 +197,10 @@ export default function DashboardPage() {
       <ToastMessage toast={toast} onClose={() => setToast(null)} />
 
       <AnalyticsStrip />
-      <UrgentFeedCard items={urgentFeed} isLoading={isUrgentLoading} error={urgentError} />
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <AiFirstReplyCard tickets={aiFirstTickets} onOpenTicket={(ticketId) => navigate(`/tickets/${ticketId}`)} />
+        <UrgentFeedCard items={urgentFeed} tickets={tickets} isLoading={isUrgentLoading} error={urgentError} />
+      </div>
 
       {error ? (
         <ErrorMessage message="Failed to load tickets. Please try again." />

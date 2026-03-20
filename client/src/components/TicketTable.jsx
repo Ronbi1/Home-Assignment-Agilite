@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import TicketStatusBadge from './TicketStatusBadge.jsx';
 import TicketActionsMenu from './TicketActionsMenu.jsx';
+import { Badge } from './ui/badge.jsx';
 import { Card } from './ui/card.jsx';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table.jsx';
 
@@ -84,7 +85,17 @@ export default function TicketTable({
                 </TableCell>
                 <TableCell className="font-medium text-foreground">{ticket.customer_name}</TableCell>
                 <TableCell className="max-w-[200px] text-muted-foreground">
-                  <span className="truncate block">{ticket.subject}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="truncate block">{ticket.subject}</span>
+                    {ticket.has_ai_first_reply ? (
+                      <Badge
+                        variant="outline"
+                        className="border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300"
+                      >
+                        AI First
+                      </Badge>
+                    ) : null}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <span className="block max-w-[160px] truncate text-slate-600 dark:text-slate-400">

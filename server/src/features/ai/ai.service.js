@@ -2,6 +2,8 @@ import getOpenAI from '../../config/openai.js';
 import * as ticketRepo from '../tickets/ticket.repository.js';
 import * as repliesRepo from '../tickets/replies.repository.js';
 
+export const AI_SUPPORT_AUTHOR = 'AI Support Agent';
+
 const SYSTEM_PROMPT = `You are a professional, empathetic customer-support agent for an e-commerce platform.
 Draft a helpful reply to the customer based on the ticket and conversation below.
 Rules:
@@ -122,33 +124,42 @@ Initial message: ${ticket.message}
 Latest reply: ${latestReplyContent}`;
 };
 
-export const suggestReply = async (ticketId) => {
+const generateReplySuggestion = async (ticket, replies) => {
+  const completion = await getOpenAI().chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: buildUserPrompt(ticket, replies) },
+    ],
+    temperature: 0.7,
+    max_tokens: 300,
+  });
+
+  const suggestion = completion?.choices?.[0]?.message?.content?.trim();
+  if (!suggestion) {
+    throw createError('AI returned an empty suggestion.', 502);
+  }
+
+  return suggestion;
+};
+
+export const generateReplySuggestionForTicket = async (ticketId) => {
   const ticket = await ticketRepo.findById(ticketId);
   if (!ticket) throw createError('Ticket not found', 404);
 
   const replies = await repliesRepo.findByTicketId(ticketId);
 
   try {
-    const completion = await getOpenAI().chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: buildUserPrompt(ticket, replies) },
-      ],
-      temperature: 0.7,
-      max_tokens: 300,
-    });
-
-    const suggestion = completion?.choices?.[0]?.message?.content?.trim();
-    if (!suggestion) {
-      throw createError('AI returned an empty suggestion.', 502);
-    }
-
-    return { suggestion };
+    return await generateReplySuggestion(ticket, replies);
   } catch (err) {
     if (err.status) throw err;
     throw createError('Failed to generate suggestion. Please try again later.', 502);
   }
+};
+
+export const suggestReply = async (ticketId) => {
+  const suggestion = await generateReplySuggestionForTicket(ticketId);
+  return { suggestion };
 };
 
 const scoreTicketUrgency = async (ticket, aiEnabled) => {

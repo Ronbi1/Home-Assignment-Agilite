@@ -31,6 +31,7 @@ vi.mock('../hooks/useTickets.js', () => ({
         product_price: 49,
         product_image: 'https://cdn.example.com/keyboard.png',
         status: 'open',
+        has_ai_first_reply: true,
         created_at: new Date().toISOString(),
       },
       {
@@ -44,6 +45,7 @@ vi.mock('../hooks/useTickets.js', () => ({
         product_price: 149,
         product_image: 'https://cdn.example.com/chair.png',
         status: 'open',
+        has_ai_first_reply: false,
         created_at: new Date().toISOString(),
       },
       {
@@ -57,6 +59,7 @@ vi.mock('../hooks/useTickets.js', () => ({
         product_price: 49,
         product_image: 'https://cdn.example.com/keyboard.png',
         status: 'closed',
+        has_ai_first_reply: false,
         created_at: new Date().toISOString(),
       },
     ],
@@ -153,5 +156,21 @@ describe('DashboardPage – AnalyticsStrip integration', () => {
     expect(strip.queryByText('5')).not.toBeInTheDocument();
     expect(strip.queryByText('3')).not.toBeInTheDocument();
     expect(strip.queryByText('2')).not.toBeInTheDocument();
+  });
+});
+
+describe('DashboardPage – AI first reply indicators', () => {
+  it('renders the AI-first dashboard card for open tickets', () => {
+    renderDashboard();
+
+    expect(screen.getByText('AI First Replies')).toBeInTheDocument();
+    expect(screen.getByText('TKT-TST001 · Alice Johnson')).toBeInTheDocument();
+  });
+
+  it('renders an AI First badge in the ticket table', () => {
+    renderDashboard();
+
+    const row = screen.getByText('TKT-TST001').closest('tr');
+    expect(within(row).getByText('AI First')).toBeInTheDocument();
   });
 });

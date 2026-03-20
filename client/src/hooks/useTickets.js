@@ -1,10 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchTickets, createTicket, deleteTicket, fetchStats, fetchUrgentFeed } from '../api/tickets.api.js';
 
+const normalizeTicket = (ticket) => ({
+  ...ticket,
+  has_ai_first_reply: Boolean(ticket?.has_ai_first_reply),
+});
+
 export const useTickets = (status) => {
   return useQuery({
     queryKey: ['tickets', status],
     queryFn: () => fetchTickets(status),
+    select: (tickets = []) => tickets.map(normalizeTicket),
   });
 };
 

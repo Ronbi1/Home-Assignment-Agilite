@@ -1,6 +1,7 @@
 import { customAlphabet } from 'nanoid';
 import * as ticketRepo from './ticket.repository.js';
 import * as repliesRepo from './replies.repository.js';
+import { AI_SUPPORT_AUTHOR, generateReplySuggestionForTicket } from '../ai/ai.service.js';
 
 const ALLOWED_STATUSES = ['open', 'closed'];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -50,7 +51,7 @@ export const getTicketById = async (id) => {
 export const createTicket = async ({ customerName, customerEmail, subject, message, productId, productTitle, productPrice, productImage }) => {
   validateTicketFields({ customerName, customerEmail, subject, message, productId, productTitle, productPrice, productImage });
   const id = `TKT-${generateId()}`;
-  return ticketRepo.create({
+  const ticket = await ticketRepo.create({
     id,
     customerName,
     customerEmail,
@@ -61,6 +62,19 @@ export const createTicket = async ({ customerName, customerEmail, subject, messa
     productPrice,
     productImage,
   });
+
+  try {
+    const suggestion = await generateReplySuggestionForTicket(ticket.id);
+    await repliesRepo.create({
+      ticketId: ticket.id,
+      author: AI_SUPPORT_AUTHOR,
+      content: suggestion,
+    });
+  } catch (err) {
+    console.error(`Failed to generate AI first reply for ticket ${ticket.id}:`, err.message);
+  }
+
+  return getTicketById(ticket.id);
 };
 
 export const updateTicketStatus = async (id, status) => {

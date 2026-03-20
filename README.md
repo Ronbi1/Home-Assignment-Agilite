@@ -2,7 +2,7 @@
 
 ![SupportDesk logo](client/public/assets/agilite-logo.png)
 
-SupportDesk is a full-stack customer support ticketing application built for the Agilite Full Stack Developer home assignment. It delivers the required 4-page workflow, persists ticket data in PostgreSQL through a backend API, and extends the baseline brief with analytics, AI-assisted support tooling, urgency scoring, and export/share reporting.
+SupportDesk is a full-stack customer support ticketing application built for the Agilite Full Stack Developer home assignment. It delivers the required 4-page workflow, persists ticket data in PostgreSQL through a backend API, and extends the baseline brief with analytics, AI-assisted support tooling, AI-first replies, urgency scoring, and export/share reporting.
 
 ## 🌍 Production URLs
 
@@ -56,7 +56,7 @@ The README is intentionally aligned with the original Agilite brief so a reviewe
 | Data persists across refreshes | Tickets and replies are stored in PostgreSQL, not only in browser state |
 | Proper validation and error handling | Client schemas, backend guards, explicit error responses, and empty/error UI states |
 | UI is clean and usable | Tailwind-based UI, shadcn-style primitives, dark mode, loaders, filtering, and polished forms |
-| Extra features beyond the brief | Analytics, AI reply suggestions, AI urgency queue, PDF export/share, product normalization, backend CI tests |
+| Extra features beyond the brief | Analytics, AI-first replies, AI reply suggestions, AI urgency queue, PDF export/share, product normalization, backend CI tests |
 
 ## ✨ Key Features
 
@@ -72,6 +72,7 @@ The README is intentionally aligned with the original Agilite brief so a reviewe
 ### Beyond The Brief
 
 - AI-generated reply suggestions for support agents.
+- AI-first replies that automatically answer new tickets when AI is available.
 - Hybrid urgent-ticket queue that combines heuristics with OpenAI scoring.
 - Dashboard analytics strip for total, open, and closed ticket counts.
 - Exportable and shareable dashboard reports with PDF, email, and native share flows.
@@ -107,7 +108,7 @@ The README is intentionally aligned with the original Agilite brief so a reviewe
 | Express | `^4.21.1` | HTTP API |
 | pg | `^8.13.0` | PostgreSQL access |
 | nanoid | `^5.0.7` | Ticket ID generation |
-| OpenAI SDK | `^6.32.0` | AI reply suggestion and urgency analysis |
+| OpenAI SDK | `^6.32.0` | AI-first replies, AI reply suggestion, and urgency analysis |
 | dotenv | `^16.4.5` | Environment configuration |
 | cors | `^2.8.5` | Browser access control |
 
@@ -311,7 +312,7 @@ Frontend runs on `http://localhost:5173`.
 | `DATABASE_URL` | Yes | `postgresql://postgres:postgres@localhost:5432/support_tickets` | Primary PostgreSQL connection |
 | `PORT` | No | `3001` | Backend server port |
 | `CLIENT_URL` | Yes for deployed frontend | `https://your-frontend-domain.vercel.app` | Allowed browser origin for CORS |
-| `OPENAI_API_KEY` | Optional locally, required for AI features | `sk-...` | Enables AI reply suggestions and urgency scoring |
+| `OPENAI_API_KEY` | Optional locally, required for AI features | `sk-...` | Enables AI-first replies, AI reply suggestions, and urgency scoring |
 
 ### Test Server
 
@@ -445,6 +446,13 @@ Common error shape:
 | `POST` | `/ai/suggest-reply` | Generate a suggested support reply for a ticket |
 | `GET` | `/ai/urgent-feed` | Return urgency-ranked open tickets; supports optional `?limit=` |
 
+#### AI First Replies
+
+When a new ticket is created, the backend attempts a best-effort AI-generated first reply and stores it as a normal ticket reply authored by `AI Support Agent`.
+
+- The ticket is still created successfully even if the AI provider is unavailable.
+- The dashboard highlights open tickets that already received this first automated response in the `AI First Replies` section.
+
 #### Example: Suggest Reply Request
 
 ```json
@@ -476,6 +484,7 @@ The application features a comprehensive test suite (55 tests) covering both the
 - Reply workflows, ensuring proper linking to tickets.
 - Products API fetching and caching behavior.
 - AI reply suggestions and urgency-feed scoring.
+- AI-first reply creation on new ticket submission, including fail-soft behavior when AI is unavailable.
 
 **Edge Cases & Security (Advanced Coverage):**
 - **Payload Validation:** Enforces strict upper-bound limits for names, subjects, and messages to prevent payload bloat, alongside email format validation.
@@ -509,6 +518,7 @@ The assignment explicitly invites extra polish and creativity. This project adds
 |---|---|
 | Analytics strip | Gives agents immediate operational visibility into ticket volume and status mix |
 | Urgent AI queue | Adds triage support instead of only passive ticket browsing |
+| AI-first replies | Gives agents an immediate automated first touch without blocking ticket creation |
 | AI reply suggestions | Speeds agent response drafting and demonstrates real workflow augmentation |
 | PDF/email/native sharing | Turns dashboard data into a usable reporting surface |
 | Dark mode | Improves UX polish and usability |

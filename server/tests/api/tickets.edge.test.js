@@ -84,20 +84,10 @@ describe('Tickets API – Validation & Malformed Data', () => {
 
     expect(res.status).toBe(201);
     expect(res.body.message).toBe(xssMessage);
+    expect(res.body.has_ai_first_reply).toBe(true);
   });
 
-  it('rejects a message that exceeds a reasonable maximum length', async () => {
-    // EXPECTED behaviour: the application should reject unreasonably large messages
-    // with a 400 validation error and an application-level message like
-    // "Message is too long."
-    //
-    // CURRENT behaviour: Express's default 100 KB body-parser limit may reject
-    // very large bodies with 413, but there is no application-level maximum
-    // length check. A 50 KB message (under the 100 KB body limit) is currently
-    // accepted with 201.
-    //
-    // This test expects a 400 from application validation and WILL FAIL with the
-    // current implementation.
+  it('rejects a message that exceeds the application maximum length', async () => {
     const hugeMessage = 'A'.repeat(50_000); // 50 KB — within Express body limit
 
     const res = await request(app)
@@ -105,6 +95,7 @@ describe('Tickets API – Validation & Malformed Data', () => {
       .send(ticketPayload({ message: hugeMessage }));
 
     expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/cannot exceed 2000 characters/i);
   });
 });
 
@@ -126,13 +117,6 @@ describe('Tickets API – State Transition Guards', () => {
   });
 
   it('rejects closing a ticket that is already closed', async () => {
-    // EXPECTED behaviour: attempting to close an already-closed ticket should
-    // return 409 Conflict to guard against unintentional no-op state transitions.
-    //
-    // CURRENT behaviour: the service does not check the existing status before
-    // applying the update, so the request succeeds with 200.
-    //
-    // This test WILL FAIL with the current implementation.
     const seeded = await insertTicket({ id: 'TKT-EDGE01', status: 'closed' });
 
     const res = await request(app)
@@ -140,6 +124,7 @@ describe('Tickets API – State Transition Guards', () => {
       .send({ status: 'closed' });
 
     expect(res.status).toBe(409);
+    expect(res.body.error).toMatch(/already closed/i);
   });
 
   it('allows reopening a closed ticket (no guard prevents open→close→open)', async () => {
