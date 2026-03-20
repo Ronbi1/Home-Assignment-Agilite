@@ -20,6 +20,7 @@ const StatCard = ({ icon: Icon, label, value, colorClass, isLoading }) => (
   </Card>
 );
 
+
 export default function AnalyticsStrip() {
   const { data: stats, isLoading } = useTicketStats();
 
