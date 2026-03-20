@@ -19,3 +19,12 @@ export const suggestReply = async (req, res, next) => {
     next(err);
   }
 };
+
+export const getUrgentFeed = async (req, res, next) => {
+  try {
+    const result = await aiService.getUrgentFeed(req.query?.limit);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};

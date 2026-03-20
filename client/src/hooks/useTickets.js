@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchTickets, createTicket, fetchStats } from '../api/tickets.api.js';
+import { fetchTickets, createTicket, fetchStats, fetchUrgentFeed } from '../api/tickets.api.js';
 
 export const useTickets = (status) => {
   return useQuery({
@@ -23,5 +23,13 @@ export const useCreateTicket = () => {
       queryClient.invalidateQueries({ queryKey: ['tickets'] });
       queryClient.invalidateQueries({ queryKey: ['ticket-stats'] });
     },
+  });
+};
+
+export const useUrgentFeed = (limit = 5) => {
+  return useQuery({
+    queryKey: ['urgent-feed', limit],
+    queryFn: () => fetchUrgentFeed(limit),
+    staleTime: 60 * 1000,
   });
 };

@@ -3,6 +3,7 @@ import { beforeEach, vi } from 'vitest';
 const { openAiCreateMock } = vi.hoisted(() => ({
   openAiCreateMock: vi.fn(),
 }));
+export { openAiCreateMock };
 
 const sampleProducts = [
   {

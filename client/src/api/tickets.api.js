@@ -42,3 +42,8 @@ export const suggestReply = async (ticketId) => {
   const { data } = await api.post('/api/ai/suggest-reply', { ticketId });
   return data;
 };
+
+export const fetchUrgentFeed = async (limit = 5) => {
+  const { data } = await api.get('/api/ai/urgent-feed', { params: { limit } });
+  return data;
+};
