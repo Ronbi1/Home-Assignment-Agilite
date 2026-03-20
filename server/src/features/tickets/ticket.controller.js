@@ -47,6 +47,15 @@ export const updateStatus = async (req, res, next) => {
   }
 };
 
+export const deleteTicket = async (req, res, next) => {
+  try {
+    const ticket = await ticketService.deleteTicket(req.params.id);
+    res.json(ticket);
+  } catch (err) {
+    next(err);
+  }
+};
+
 // ── Replies ───────────────────────────────────────────────────────────────────
 
 export const getReplies = async (req, res, next) => {

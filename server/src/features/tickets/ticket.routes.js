@@ -9,6 +9,7 @@ router.get('/', ticketController.getTickets);
 router.get('/:id', ticketController.getTicket);
 router.post('/', ticketController.createTicket);
 router.patch('/:id/status', ticketController.updateStatus);
+router.delete('/:id', ticketController.deleteTicket);
 
 // Replies — nested under tickets domain
 router.get('/:id/replies', ticketController.getReplies);

@@ -65,6 +65,17 @@ export const updateTicketStatus = async (id, status) => {
   return ticket;
 };
 
+export const deleteTicket = async (id) => {
+  const ticket = await getTicketById(id);
+  if (ticket.status !== 'closed') {
+    throw createError('Only closed tickets can be deleted', 409);
+  }
+
+  const deletedTicket = await ticketRepo.softDelete(id);
+  if (!deletedTicket) throw createError('Ticket not found', 404);
+  return deletedTicket;
+};
+
 // ── Replies ───────────────────────────────────────────────────────────────────
 
 export const getReplies = async (ticketId) => {

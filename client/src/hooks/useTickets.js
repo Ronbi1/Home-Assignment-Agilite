@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchTickets, createTicket, fetchStats, fetchUrgentFeed } from '../api/tickets.api.js';
+import { fetchTickets, createTicket, deleteTicket, fetchStats, fetchUrgentFeed } from '../api/tickets.api.js';
 
 export const useTickets = (status) => {
   return useQuery({
@@ -22,6 +22,18 @@ export const useCreateTicket = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tickets'] });
       queryClient.invalidateQueries({ queryKey: ['ticket-stats'] });
+    },
+  });
+};
+
+export const useDeleteTicket = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteTicket,
+    onSuccess: (_, ticketId) => {
+      queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      queryClient.invalidateQueries({ queryKey: ['ticket-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['ticket', ticketId] });
     },
   });
 };

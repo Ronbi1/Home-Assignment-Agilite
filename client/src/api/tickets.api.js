@@ -23,6 +23,11 @@ export const updateTicketStatus = async (id, status) => {
   return data;
 };
 
+export const deleteTicket = async (id) => {
+  const { data } = await api.delete(`${BASE}/${id}`);
+  return data;
+};
+
 export const fetchReplies = async (ticketId) => {
   const { data } = await api.get(`${BASE}/${ticketId}/replies`);
   return data;

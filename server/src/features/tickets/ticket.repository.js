@@ -2,15 +2,15 @@ import pool from '../../config/db.js';
 
 export const findAll = async (status) => {
   const query = status
-    ? 'SELECT * FROM tickets WHERE status = $1 ORDER BY created_at DESC'
-    : 'SELECT * FROM tickets ORDER BY created_at DESC';
+    ? 'SELECT * FROM tickets WHERE deleted_at IS NULL AND status = $1 ORDER BY created_at DESC'
+    : 'SELECT * FROM tickets WHERE deleted_at IS NULL ORDER BY created_at DESC';
   const values = status ? [status] : [];
   const { rows } = await pool.query(query, values);
   return rows;
 };
 
 export const findById = async (id) => {
-  const { rows } = await pool.query('SELECT * FROM tickets WHERE id = $1', [id]);
+  const { rows } = await pool.query('SELECT * FROM tickets WHERE id = $1 AND deleted_at IS NULL', [id]);
   return rows[0] || null;
 };
 
@@ -26,8 +26,19 @@ export const create = async ({ id, customerName, customerEmail, subject, message
 
 export const updateStatus = async (id, status) => {
   const { rows } = await pool.query(
-    `UPDATE tickets SET status = $1 WHERE id = $2 RETURNING *`,
+    `UPDATE tickets SET status = $1 WHERE id = $2 AND deleted_at IS NULL RETURNING *`,
     [status, id]
+  );
+  return rows[0] || null;
+};
+
+export const softDelete = async (id) => {
+  const { rows } = await pool.query(
+    `UPDATE tickets
+     SET deleted_at = NOW()
+     WHERE id = $1 AND deleted_at IS NULL
+     RETURNING *`,
+    [id]
   );
   return rows[0] || null;
 };
@@ -39,6 +50,7 @@ export const getStats = async () => {
       COUNT(*) FILTER (WHERE status = 'open')::int     AS open,
       COUNT(*) FILTER (WHERE status = 'closed')::int   AS closed
     FROM tickets
+    WHERE deleted_at IS NULL
   `);
   return rows[0];
 };

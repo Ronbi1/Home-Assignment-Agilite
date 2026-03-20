@@ -39,6 +39,45 @@ describe('Tickets API', () => {
     expect(res.body.status).toBe('closed');
   });
 
+  it('soft deletes a closed ticket and hides it from reads', async () => {
+    const seeded = await insertTicket({ id: 'TKT-CLOSE3', status: 'closed' });
+
+    const deleteRes = await request(app).delete(`/api/tickets/${seeded.id}`);
+
+    expect(deleteRes.status).toBe(200);
+    expect(deleteRes.body.id).toBe(seeded.id);
+    expect(deleteRes.body.status).toBe('closed');
+    expect(deleteRes.body.deleted_at).toBeTruthy();
+
+    const listRes = await request(app).get('/api/tickets');
+    expect(listRes.status).toBe(200);
+    expect(listRes.body.some((ticket) => ticket.id === seeded.id)).toBe(false);
+
+    const statsRes = await request(app).get('/api/tickets/stats');
+    expect(statsRes.status).toBe(200);
+    expect(statsRes.body).toEqual({ total: 0, open: 0, closed: 0 });
+
+    const detailRes = await request(app).get(`/api/tickets/${seeded.id}`);
+    expect(detailRes.status).toBe(404);
+    expect(detailRes.body).toEqual({ error: 'Ticket not found' });
+  });
+
+  it('rejects deleting an open ticket', async () => {
+    const seeded = await insertTicket({ id: 'TKT-OPEN04', status: 'open' });
+
+    const res = await request(app).delete(`/api/tickets/${seeded.id}`);
+
+    expect(res.status).toBe(409);
+    expect(res.body).toEqual({ error: 'Only closed tickets can be deleted' });
+  });
+
+  it('returns 404 when deleting a missing ticket', async () => {
+    const res = await request(app).delete('/api/tickets/TKT-NOPE01');
+
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({ error: 'Ticket not found' });
+  });
+
   it('returns replies for a ticket', async () => {
     const seeded = await insertTicket({ id: 'TKT-OPEN03' });
     await insertReply(seeded.id, { content: 'First support message' });
