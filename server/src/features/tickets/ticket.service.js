@@ -6,6 +6,10 @@ const ALLOWED_STATUSES = ['open', 'closed'];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const generateId = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 6);
 
+const MAX_NAME_LENGTH = 100;
+const MAX_SUBJECT_LENGTH = 200;
+const MAX_MESSAGE_LENGTH = 2000;
+
 const createError = (message, status = 400) => {
   const err = new Error(message);
   err.status = status;
@@ -19,9 +23,12 @@ const validateTicketFields = ({ customerName, customerEmail, subject, message, p
     throw createError('All fields are required');
   }
   if (customerName.trim().length < 2) throw createError('Name must be at least 2 characters');
+  if (customerName.trim().length > MAX_NAME_LENGTH) throw createError(`Name cannot exceed ${MAX_NAME_LENGTH} characters`);
   if (!EMAIL_RE.test(customerEmail)) throw createError('Please enter a valid email address');
   if (subject.trim().length < 5) throw createError('Subject must be at least 5 characters');
+  if (subject.trim().length > MAX_SUBJECT_LENGTH) throw createError(`Subject cannot exceed ${MAX_SUBJECT_LENGTH} characters`);
   if (message.trim().length < 10) throw createError('Message must be at least 10 characters');
+  if (message.trim().length > MAX_MESSAGE_LENGTH) throw createError(`Message cannot exceed ${MAX_MESSAGE_LENGTH} characters`);
   if (!Number.isInteger(normalizedProductId) || normalizedProductId < 1) throw createError('Please select a valid product');
   if (!productTitle || productTitle.trim().length < 1) throw createError('Product details are required');
   if (!Number.isFinite(productPrice) || productPrice < 0) throw createError('Please select a valid product');
@@ -59,6 +66,11 @@ export const createTicket = async ({ customerName, customerEmail, subject, messa
 export const updateTicketStatus = async (id, status) => {
   if (!ALLOWED_STATUSES.includes(status)) {
     throw createError(`Invalid status. Must be one of: ${ALLOWED_STATUSES.join(', ')}`);
+  }
+  const existing = await ticketRepo.findById(id);
+  if (!existing) throw createError('Ticket not found', 404);
+  if (existing.status === status) {
+    throw createError(`Ticket is already ${status}`, 409);
   }
   const ticket = await ticketRepo.updateStatus(id, status);
   if (!ticket) throw createError('Ticket not found', 404);
