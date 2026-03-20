@@ -1,4 +1,4 @@
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card.jsx';
 import { Badge } from './ui/badge.jsx';
@@ -36,7 +36,10 @@ export default function UrgentFeedCard({ items = [], isLoading, error }) {
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <p className="text-sm text-muted-foreground">Analyzing urgent tickets...</p>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 size={14} className="animate-spin" />
+            <span>Analyzing urgent tickets...</span>
+          </div>
         ) : error ? (
           <p className="text-sm text-muted-foreground">Urgent feed is temporarily unavailable.</p>
         ) : visibleItems.length === 0 ? (

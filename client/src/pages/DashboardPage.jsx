@@ -1,18 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { LayoutDashboard, Search, Download, Mail, Share2 } from 'lucide-react';
 import { useTickets, useUrgentFeed } from '../hooks/useTickets.js';
+import useFilteredTickets from '../hooks/useFilteredTickets.js';
+import useReport from '../hooks/useReport.js';
 import TicketTable from '../components/TicketTable.jsx';
 import TicketFilters from '../components/TicketFilters.jsx';
 import AnalyticsStrip from '../components/AnalyticsStrip.jsx';
 import UrgentFeedCard from '../components/UrgentFeedCard.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
+import PageLoadingState from '../components/PageLoadingState.jsx';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card.jsx';
 import { Input } from '../components/ui/input.jsx';
 import { Button } from '../components/ui/button.jsx';
-import { buildReportData } from '../lib/report/reportData.js';
-import { buildReportTemplate } from '../lib/report/reportTemplate.js';
-import { generateReportPdf } from '../lib/report/reportPdf.js';
-import { buildSharePayload, copyShareText, shareByEmail, shareNative } from '../lib/report/reportShare.js';
+import { REPORT_SCOPES, SORT_MODES, STATUS_MODES } from '../lib/constants/dashboard.constants.js';
 
 function ToastMessage({ toast, onClose }) {
   if (!toast) return null;
@@ -32,17 +32,19 @@ function ToastMessage({ toast, onClose }) {
 }
 
 export default function DashboardPage() {
-  const [statusMode, setStatusMode] = useState('all_grouped');
-  const [sortMode, setSortMode] = useState('date_desc');
+  // state
+  const [statusMode, setStatusMode] = useState(STATUS_MODES.ALL_GROUPED);
+  const [sortMode, setSortMode] = useState(SORT_MODES.DATE_DESC);
   const [productFilter, setProductFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [reportScope, setReportScope] = useState('last20');
+  const [reportScope, setReportScope] = useState(REPORT_SCOPES.LAST_20);
   const [selectedTicketIds, setSelectedTicketIds] = useState([]);
-  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
-  const [toast, setToast] = useState(null);
+
+  // data hooks
   const { data: tickets = [], isLoading, error } = useTickets();
   const { data: urgentFeed = [], isLoading: isUrgentLoading, error: urgentError } = useUrgentFeed(20);
 
+  // derived data (useMemo / custom hooks)
   const productOptions = useMemo(() => {
     const products = new Map();
     for (const ticket of tickets) {
@@ -55,71 +57,44 @@ export default function DashboardPage() {
       .sort((a, b) => a.label.localeCompare(b.label));
   }, [tickets]);
 
-  const visibleTickets = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    const includesQuery = (value) => String(value ?? '').toLowerCase().includes(q);
-    const filteredByQuery = tickets.filter(
-      (ticket) =>
-        !q ||
-        includesQuery(ticket.id) ||
-        includesQuery(ticket.customer_name) ||
-        includesQuery(ticket.subject)
-    );
+  const visibleTickets = useFilteredTickets({
+    tickets,
+    searchQuery,
+    statusMode,
+    productFilter,
+    sortMode,
+  });
 
-    const filteredByStatus = filteredByQuery.filter((ticket) => {
-      if (statusMode === 'open') return ticket.status === 'open';
-      if (statusMode === 'closed') return ticket.status === 'closed';
-      return true;
-    });
+  const {
+    isGeneratingReport,
+    generatePdf,
+    shareByEmail,
+    shareNative,
+    toast,
+    setToast,
+  } = useReport({
+    visibleTickets,
+    reportScope,
+    selectedTicketIds,
+    statusMode,
+    searchQuery,
+  });
 
-    const filteredByProduct = filteredByStatus.filter((ticket) => {
-      if (productFilter === 'all') return true;
-      return String(ticket.product_id) === productFilter;
-    });
-
-    const sorted = [...filteredByProduct].sort((a, b) => {
-      if (statusMode === 'all_grouped' && a.status !== b.status) {
-        return a.status === 'open' ? -1 : 1;
-      }
-
-      if (sortMode === 'alpha') {
-        return String(a.customer_name ?? '').localeCompare(String(b.customer_name ?? ''), undefined, { sensitivity: 'base' });
-      }
-
-      const timeA = new Date(a.created_at).getTime();
-      const timeB = new Date(b.created_at).getTime();
-      const safeA = Number.isFinite(timeA) ? timeA : 0;
-      const safeB = Number.isFinite(timeB) ? timeB : 0;
-      if (sortMode === 'date_asc') return safeA - safeB;
-      return safeB - safeA;
-    });
-
-    return sorted;
-  }, [tickets, searchQuery, statusMode, productFilter, sortMode]);
-
+  // effects
   useEffect(() => {
-    const filteredIdSet = new Set(visibleTickets.map((ticket) => ticket.id));
-    setSelectedTicketIds((prev) => prev.filter((id) => filteredIdSet.has(id)));
+    const visibleIdSet = new Set(visibleTickets.map((ticket) => ticket.id));
+
+    // Avoid unnecessary state updates when the selected ids are already aligned.
+    setSelectedTicketIds((prev) => {
+      const next = prev.filter((id) => visibleIdSet.has(id));
+      if (next.length === prev.length && next.every((id, index) => id === prev[index])) {
+        return prev;
+      }
+      return next;
+    });
   }, [visibleTickets]);
 
-  const isAllSelected = useMemo(() => {
-    if (visibleTickets.length === 0) return false;
-    return visibleTickets.every((ticket) => selectedTicketIds.includes(ticket.id));
-  }, [visibleTickets, selectedTicketIds]);
-
-  const makeReport = () =>
-    buildReportData({
-      tickets: visibleTickets,
-      scope: reportScope,
-      selectedIds: selectedTicketIds,
-      statusFilter: statusMode === 'all_grouped' ? '' : statusMode,
-      searchQuery,
-    });
-
-  const showToast = (message, type = 'success') => {
-    setToast({ type, message });
-  };
-
+  // handlers
   const handleToggleTicket = (ticketId) => {
     setSelectedTicketIds((prev) => (prev.includes(ticketId) ? prev.filter((id) => id !== ticketId) : [...prev, ticketId]));
   };
@@ -132,67 +107,21 @@ export default function DashboardPage() {
     setSelectedTicketIds([]);
   };
 
-  const handleGenerateReportPdf = async () => {
-    setIsGeneratingReport(true);
-    try {
-      const report = makeReport();
-      if (report.scope === 'selected' && report.rows.length === 0) {
-        showToast('Please select at least one ticket before exporting.', 'error');
-        return;
-      }
-
-      const html = buildReportTemplate(report);
-      await generateReportPdf({
-        html,
-        fileName: `agilite-report-${new Date().toISOString().slice(0, 10)}.pdf`,
-      });
-      showToast('Report downloaded successfully.');
-    } catch {
-      showToast('Failed to generate report. Please try again.', 'error');
-    } finally {
-      setIsGeneratingReport(false);
-    }
-  };
-
-  const handleShareByEmail = async () => {
-    setIsGeneratingReport(true);
-    try {
-      const report = makeReport();
-      if (report.scope === 'selected' && report.rows.length === 0) {
-        showToast('Please select at least one ticket before sharing.', 'error');
-        return;
-      }
-      shareByEmail(buildSharePayload(report));
-      showToast('Opening your email app.');
-    } catch {
-      showToast('Failed to prepare email share.', 'error');
-    } finally {
-      setIsGeneratingReport(false);
-    }
-  };
-
-  const handleNativeShare = async () => {
-    setIsGeneratingReport(true);
-    try {
-      const report = makeReport();
-      if (report.scope === 'selected' && report.rows.length === 0) {
-        showToast('Please select at least one ticket before sharing.', 'error');
-        return;
-      }
-      const payload = buildSharePayload(report);
-      try {
-        await shareNative(payload);
-        showToast('Shared successfully.');
-      } catch {
-        await copyShareText(payload);
-        showToast('Share text copied to clipboard.');
-      }
-    } catch {
-      showToast('Failed to share report. Please try again.', 'error');
-    } finally {
-      setIsGeneratingReport(false);
-    }
-  };
+  // render
+  if (isLoading) {
+    return (
+      <div className="p-4 sm:p-8">
+        <div className="mb-7">
+          <div className="flex items-center gap-3 mb-1">
+            <LayoutDashboard size={22} className="text-primary" />
+            <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+          </div>
+          <p className="text-sm text-muted-foreground">Manage and track all customer support tickets</p>
+        </div>
+        <PageLoadingState message="Loading dashboard tickets..." />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-8">
@@ -239,10 +168,10 @@ export default function DashboardPage() {
                     className="h-9 rounded-md border border-input bg-background px-2 text-sm"
                     disabled={isGeneratingReport}
                   >
-                    <option value="last20">Last 20 tickets</option>
-                    <option value="selected">Selected tickets</option>
+                    <option value={REPORT_SCOPES.LAST_20}>Last 20 tickets</option>
+                    <option value={REPORT_SCOPES.SELECTED}>Selected tickets</option>
                   </select>
-                  {reportScope === 'selected' ? (
+                  {reportScope === REPORT_SCOPES.SELECTED ? (
                     <>
                       <Button variant="outline" size="sm" onClick={handleSelectAll} disabled={isGeneratingReport}>
                         Select all
@@ -255,29 +184,31 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="relative w-full sm:w-64">
-                  <Search
-                    size={15}
-                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                  />
-                  <Input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search tickets..."
-                    className="pl-9"
-                  />
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="relative w-full sm:w-64">
+                    <Search
+                      size={15}
+                      className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    />
+                    <Input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search tickets..."
+                      className="pl-9"
+                    />
+                  </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <Button size="sm" onClick={handleGenerateReportPdf} disabled={isGeneratingReport}>
+                  <Button size="sm" onClick={generatePdf} disabled={isGeneratingReport}>
                     <Download size={14} className="mr-1.5" />
                     {isGeneratingReport ? 'Generating...' : 'Export PDF'}
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleShareByEmail} disabled={isGeneratingReport}>
+                  <Button variant="outline" size="sm" onClick={shareByEmail} disabled={isGeneratingReport}>
                     <Mail size={14} className="mr-1.5" />
                     Email
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleNativeShare} disabled={isGeneratingReport}>
+                  <Button variant="outline" size="sm" onClick={shareNative} disabled={isGeneratingReport}>
                     <Share2 size={14} className="mr-1.5" />
                     Share
                   </Button>
@@ -297,7 +228,7 @@ export default function DashboardPage() {
           <TicketTable
             tickets={visibleTickets}
             isLoading={isLoading}
-            selectable={reportScope === 'selected'}
+            selectable={reportScope === REPORT_SCOPES.SELECTED}
             selectedTicketIds={selectedTicketIds}
             onToggleTicket={handleToggleTicket}
           />

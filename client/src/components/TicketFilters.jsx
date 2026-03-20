@@ -1,15 +1,16 @@
 import { Button } from './ui/button.jsx';
+import { SORT_MODES as SORT_MODE_VALUES, STATUS_MODES as STATUS_MODE_VALUES } from '../lib/constants/dashboard.constants.js';
 
-const STATUS_MODES = [
-  { value: 'all_grouped', label: 'All (Open first)' },
-  { value: 'open', label: 'Open' },
-  { value: 'closed', label: 'Closed' },
+const STATUS_MODE_OPTIONS = [
+  { value: STATUS_MODE_VALUES.ALL_GROUPED, label: 'All (Open first)' },
+  { value: STATUS_MODE_VALUES.OPEN, label: 'Open' },
+  { value: STATUS_MODE_VALUES.CLOSED, label: 'Closed' },
 ];
 
-const SORT_MODES = [
-  { value: 'date_desc', label: 'Date (Newest)' },
-  { value: 'date_asc', label: 'Date (Oldest)' },
-  { value: 'alpha', label: 'Alphabetical' },
+const SORT_MODE_OPTIONS = [
+  { value: SORT_MODE_VALUES.DATE_DESC, label: 'Date (Newest)' },
+  { value: SORT_MODE_VALUES.DATE_ASC, label: 'Date (Oldest)' },
+  { value: SORT_MODE_VALUES.ALPHA, label: 'Alphabetical' },
 ];
 
 export default function TicketFilters({
@@ -24,7 +25,7 @@ export default function TicketFilters({
   return (
     <div className="flex w-full flex-col gap-2 lg:flex-row lg:items-center lg:gap-3">
       <div className="flex gap-1.5 rounded-lg border border-border/80 bg-muted/40 p-1">
-        {STATUS_MODES.map(({ value, label }) => (
+        {STATUS_MODE_OPTIONS.map(({ value, label }) => (
           <Button
             key={value}
             onClick={() => onStatusModeChange(value)}
@@ -47,7 +48,7 @@ export default function TicketFilters({
           onChange={(event) => onSortModeChange(event.target.value)}
           className="h-9 rounded-md border border-input bg-background px-2 text-sm"
         >
-          {SORT_MODES.map((option) => (
+          {SORT_MODE_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>

@@ -6,6 +6,7 @@ import TicketStatusBadge from '../components/TicketStatusBadge.jsx';
 import ConversationThread from '../components/ConversationThread.jsx';
 import ReplyForm from '../components/ReplyForm.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
+import PageLoadingState from '../components/PageLoadingState.jsx';
 
 const FALLBACK_IMAGE = 'https://placehold.co/80x80?text=?';
 
@@ -56,17 +57,20 @@ const formatDate = (dateStr) =>
 
 function TicketDetailSkeleton() {
   return (
-    <div className="p-4 sm:p-8 max-w-5xl animate-pulse">
-      <div className="h-5 bg-slate-200 dark:bg-slate-700 rounded w-36 mb-8" />
-      <div className="h-7 bg-slate-200 dark:bg-slate-700 rounded w-1/2 mb-2" />
-      <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24 mb-8" />
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="space-y-4">
-          <div className="h-36 bg-slate-200 dark:bg-slate-700 rounded-xl" />
-          <div className="h-28 bg-slate-200 dark:bg-slate-700 rounded-xl" />
-          <div className="h-24 bg-slate-200 dark:bg-slate-700 rounded-xl" />
+    <div>
+      <PageLoadingState message="Loading ticket details..." />
+      <div className="p-4 sm:p-8 max-w-5xl animate-pulse">
+        <div className="h-5 bg-slate-200 dark:bg-slate-700 rounded w-36 mb-8" />
+        <div className="h-7 bg-slate-200 dark:bg-slate-700 rounded w-1/2 mb-2" />
+        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24 mb-8" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="space-y-4">
+            <div className="h-36 bg-slate-200 dark:bg-slate-700 rounded-xl" />
+            <div className="h-28 bg-slate-200 dark:bg-slate-700 rounded-xl" />
+            <div className="h-24 bg-slate-200 dark:bg-slate-700 rounded-xl" />
+          </div>
+          <div className="lg:col-span-2 h-[480px] bg-slate-200 dark:bg-slate-700 rounded-xl" />
         </div>
-        <div className="lg:col-span-2 h-[480px] bg-slate-200 dark:bg-slate-700 rounded-xl" />
       </div>
     </div>
   );
