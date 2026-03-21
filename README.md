@@ -531,7 +531,6 @@ The assignment explicitly invites extra polish and creativity. This project adds
 - No authentication or authorization is implemented because the assignment explicitly did not require it.
 - Reply authorship is application-driven and currently uses a fixed support-agent identity in the UI flow.
 - The product catalog depends on `api.escuelajs.co`, so upstream outages or asset inconsistencies can affect product views.
-- The frontend currently has no automated test suite.
 - The dashboard does not yet implement pagination.
 - `npm start` is demo-friendly but not production-safe because it initializes and reseeds data on startup.
 
