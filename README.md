@@ -536,10 +536,10 @@ The assignment explicitly invites extra polish and creativity. This project adds
 
 ## 🗺️ Future Roadmap
 
-- Add authentication and role-aware support workflows for real multi-user usage.
-- Introduce migrations and safer production bootstrapping instead of reseeding on startup.
-- Add frontend automated tests for forms, routing, dashboard filters, and AI-assisted interactions.
-- Add pagination, richer search, and audit history for higher ticket volume.
+- **Authentication & Authorization:** Add JWT-based auth and role-aware workflows (Admin vs. Support Agent) for real multi-user usage.
+- **Database Migrations:** Introduce proper schema migrations (e.g., Knex or Prisma) and safer production bootstrapping instead of reseeding on startup.
+- **Real-Time Collaboration:** Implement WebSockets (Socket.io) for live ticket updates, real-time chat replies, and "agent collision detection" to prevent multiple agents from answering the same ticket simultaneously.
+- **Scalability Enhancements:** Add cursor-based pagination, richer search capabilities, and full audit history logs for handling higher ticket volumes.
 
 ## 🤝 Support And Extension
 
