@@ -1,7 +1,5 @@
 # SupportDesk
 
-![SupportDesk logo](client/public/assets/agilite-logo.png)
-
 SupportDesk is a full-stack customer support ticketing application built for the Agilite Full Stack Developer home assignment. It delivers the required 4-page workflow, persists ticket data in PostgreSQL through a backend API, and extends the baseline brief with analytics, AI-assisted support tooling, AI-first replies, urgency scoring, and export/share reporting.
 
 ## 🌍 Production URLs
