@@ -4,8 +4,8 @@ SupportDesk is a full-stack customer support ticketing application. It delivers 
 
 ## 🌍 Production URLs
 
-- **Frontend (SPA):** [home-assignment-agilite.vercel.app](https://home-assignment-agilite.vercel.app)
-- **Backend (API):** [home-assignment-agilite-production.up.railway.app](https://home-assignment-agilite-production.up.railway.app)
+- **Frontend (SPA):** [support-desk-webapp.vercel.app](https://support-desk-webapp.vercel.app)
+- **Backend (API):** [support-desk-backend.up.railway.app](https://support-desk-backend.up.railway.app)
 - **Product Source Data:** [`https://api.escuelajs.co/api/v1/products`](https://api.escuelajs.co/api/v1/products)
 ## 🧭 Project Overview
 
